@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ナキメモ',
+      title: '泣きメモ',
       theme: ThemeData(primarySwatch: Colors.pink),
       home: HomePage(),
     );
@@ -57,15 +57,15 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit),
-            label: '入力',
+            label: '',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            label: 'カレンダー',
+            label: '',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: '統計',
+            label: '',
           ),
         ],
       ),

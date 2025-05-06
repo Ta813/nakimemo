@@ -123,7 +123,7 @@ class _InputScreenState extends State<InputScreen> {
     return Scaffold(
       backgroundColor: Colors.pink[50], // 背景画像を見せるために透明
       appBar: AppBar(
-        title: Text('泣いたらボタンを押してね！'),
+        title: Text('ボタンを押してね！'),
         actions: [
           IconButton(
             icon: Icon(Icons.help_outline),
