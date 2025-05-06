@@ -1,0 +1,23 @@
+name: nakimemo
+description: A simple crying log app
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  shared_preferences: ^2.2.2
+  table_calendar: ^3.0.9
+  fl_chart: ^0.63.0
+  http: ^0.13.6
+  flutter_dotenv: ^5.1.0
+  font_awesome_flutter: ^10.8.0
+
+flutter:
+  uses-material-design: true
+  assets:
+  - lib/assets/baby_bg.png
