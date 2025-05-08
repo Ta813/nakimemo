@@ -1,0 +1,4 @@
+enum LayoutType {
+  list,
+  grid,
+}

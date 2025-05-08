@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StatsScreen extends StatefulWidget {
   @override
@@ -132,9 +133,8 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[50],
       appBar: AppBar(
-        title: Text('統計'),
+        title: Text(AppLocalizations.of(context)!.stats_title),
         actions: [
           IconButton(
             icon: Icon(Icons.help_outline),
@@ -142,15 +142,12 @@ class _StatsScreenState extends State<StatsScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text('統計画面の使い方'),
-                  content: Text('この画面では、過去の育児記録をカテゴリ別に月ごとで集計し、グラフで表示します。\n\n'
-                      '📌 表示カテゴリ:\n'
-                      '🍼 ミルク, 💩 おむつ, 🌙 夜泣き, 🐾 その他\n\n'
-                      '📆 上部で年月を切り替えることができます。\n\n'
-                      '💡「AIのアドバイスを見る」ボタンで、AIからの育児ヒントも得られます。'),
+                  title: Text(AppLocalizations.of(context)!.stats_help_title),
+                  content:
+                      Text(AppLocalizations.of(context)!.stats_help_content),
                   actions: [
                     TextButton(
-                      child: Text('閉じる'),
+                      child: Text(AppLocalizations.of(context)!.close),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -201,7 +198,7 @@ class _StatsScreenState extends State<StatsScreen> {
             SizedBox(height: 20),
             Expanded(
               child: categoryCounts.isEmpty
-                  ? Center(child: Text('記録がありません'))
+                  ? Center(child: Text(AppLocalizations.of(context)!.noRecords))
                   : SingleChildScrollView(
                       child: Column(
                         children: [
@@ -235,7 +232,7 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
             ElevatedButton.icon(
               icon: Icon(Icons.lightbulb),
-              label: Text('AIのアドバイスを見る'),
+              label: Text(AppLocalizations.of(context)!.adviceButton),
               onPressed: () async {
                 try {
                   final advice =
@@ -243,11 +240,12 @@ class _StatsScreenState extends State<StatsScreen> {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text('AIアドバイス'),
+                      title:
+                          Text(AppLocalizations.of(context)!.ai_advice_title),
                       content: Text(advice),
                       actions: [
                         TextButton(
-                          child: Text('閉じる'),
+                          child: Text(AppLocalizations.of(context)!.close),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -257,12 +255,13 @@ class _StatsScreenState extends State<StatsScreen> {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text('エラー'),
-                      content:
-                          Text('アドバイスの取得に失敗しました。ネットワークやAPIキーをご確認ください。\n\n$e'),
+                      title: Text(AppLocalizations.of(context)!.error_title),
+                      content: Text(
+                          AppLocalizations.of(context)!.advice_fetch_failed +
+                              '\n\n$e'),
                       actions: [
                         TextButton(
-                          child: Text('閉じる'),
+                          child: Text(AppLocalizations.of(context)!.close),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],

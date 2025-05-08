@@ -1,9 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nakimemo/setting/layout_provider.dart';
+import 'package:nakimemo/setting/layout_type.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -97,7 +101,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           actions: [
             TextButton(
-              child: Text('閉じる'),
+              child: Text(AppLocalizations.of(context)!.close),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -106,16 +110,108 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  Widget _itemBuilder(int index) {
+    final log = _getEventsForDay(_selectedDay!)[index];
+    return Dismissible(
+      key: Key(log),
+      background: Container(color: Colors.red),
+      onDismissed: (direction) async {
+        await _removeEvent(index);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$log を削除しました')),
+        );
+      },
+      child: ListTile(
+        leading: Icon(
+          _getCategoryIcon(log),
+          color: _getCategoryColor(log),
+        ),
+        title: Text(log),
+        onTap: () async {
+          final log = _getEventsForDay(_selectedDay!)[index];
+          final timeStr = log.split(' ').first;
+          final categoryLabel = log.substring(timeStr.length + 1);
+
+          String? tempSelectedCategory = categoryLabel;
+
+          final newLog = await showDialog<String>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(AppLocalizations.of(context)!.edit_category_title),
+                content: DropdownButtonFormField<String>(
+                  value: tempSelectedCategory,
+                  items: [
+                    'ミルク',
+                    'おむつ',
+                    '夜泣き',
+                    'その他',
+                  ].map((label) {
+                    return DropdownMenuItem<String>(
+                      value: label,
+                      child: Text(label),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    tempSelectedCategory = value;
+                  },
+                  decoration: InputDecoration(
+                    labelText:
+                        AppLocalizations.of(context)!.edit_category_label,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    child: Text(AppLocalizations.of(context)!.cancel_button),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  TextButton(
+                    child: Text(AppLocalizations.of(context)!.save_button),
+                    onPressed: () {
+                      if (tempSelectedCategory != null) {
+                        Navigator.pop(
+                            context, '$timeStr $tempSelectedCategory');
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (newLog != null && newLog.trim().isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            final rawData = prefs.getString('cry_logs') ?? '{}';
+            final data = Map<String, dynamic>.from(json.decode(rawData));
+            final key = _formatDate(_selectedDay!);
+            final dayLogs = List<String>.from(data[key] ?? []);
+            dayLogs[index] = newLog;
+            data[key] = dayLogs;
+            await prefs.setString('cry_logs', json.encode(data));
+            setState(() {
+              _eventMap = data.map(
+                (k, v) => MapEntry(k, List<String>.from(v)),
+              );
+            });
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final layoutProvider = Provider.of<LayoutProvider>(context);
+    final isGrid = layoutProvider.layoutType == LayoutType.grid;
+
     return Scaffold(
-      backgroundColor: Colors.green[50],
       appBar: AppBar(
-        title: Text('泣いた記録カレンダー'),
+        title: Text(AppLocalizations.of(context)!.calendar_title),
         actions: [
           IconButton(
             icon: Icon(Icons.help_outline),
-            tooltip: 'ヘルプ',
+            tooltip: AppLocalizations.of(context)!.help_tooltip,
             onPressed: _showHelpDialog,
           ),
         ],
@@ -143,98 +239,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           const SizedBox(height: 8.0),
           Expanded(
-            child: ListView.builder(
-              itemCount: _getEventsForDay(_selectedDay!).length,
-              itemBuilder: (context, index) {
-                final log = _getEventsForDay(_selectedDay!)[index];
-                return Dismissible(
-                  key: Key(log),
-                  background: Container(color: Colors.red),
-                  onDismissed: (direction) async {
-                    await _removeEvent(index);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('$log を削除しました')),
-                    );
-                  },
-                  child: ListTile(
-                    leading: Icon(
-                      _getCategoryIcon(log),
-                      color: _getCategoryColor(log),
+            child: isGrid
+                ? GridView.builder(
+                    itemCount: _getEventsForDay(_selectedDay!).length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // グリッドの列数
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 2.5, // アイテムのアスペクト比
                     ),
-                    title: Text(log),
-                    onTap: () async {
-                      final log = _getEventsForDay(_selectedDay!)[index];
-                      final timeStr = log.split(' ').first;
-                      final categoryLabel = log.substring(timeStr.length + 1);
-
-                      String? tempSelectedCategory = categoryLabel;
-
-                      final newLog = await showDialog<String>(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('カテゴリを編集'),
-                            content: DropdownButtonFormField<String>(
-                              value: tempSelectedCategory,
-                              items: [
-                                'ミルク',
-                                'おむつ',
-                                '夜泣き',
-                                'その他',
-                              ].map((label) {
-                                return DropdownMenuItem<String>(
-                                  value: label,
-                                  child: Text(label),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                tempSelectedCategory = value;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'カテゴリ',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text('キャンセル'),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              TextButton(
-                                child: Text('保存'),
-                                onPressed: () {
-                                  if (tempSelectedCategory != null) {
-                                    Navigator.pop(context,
-                                        '$timeStr $tempSelectedCategory');
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      if (newLog != null && newLog.trim().isNotEmpty) {
-                        final prefs = await SharedPreferences.getInstance();
-                        final rawData = prefs.getString('cry_logs') ?? '{}';
-                        final data =
-                            Map<String, dynamic>.from(json.decode(rawData));
-                        final key = _formatDate(_selectedDay!);
-                        final dayLogs = List<String>.from(data[key] ?? []);
-                        dayLogs[index] = newLog;
-                        data[key] = dayLogs;
-                        await prefs.setString('cry_logs', json.encode(data));
-                        setState(() {
-                          _eventMap = data.map(
-                            (k, v) => MapEntry(k, List<String>.from(v)),
-                          );
-                        });
-                      }
+                    itemBuilder: (context, index) {
+                      return _itemBuilder(index);
+                    })
+                : ListView.builder(
+                    itemCount: _getEventsForDay(_selectedDay!).length,
+                    itemBuilder: (context, index) {
+                      return _itemBuilder(index);
                     },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),

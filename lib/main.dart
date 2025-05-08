@@ -4,22 +4,74 @@ import 'screens/calendar_screen.dart';
 import 'screens/stats_screen.dart'; // 統計画面
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'setting/locale_provider.dart';
+import 'setting/theme_provider.dart';
+import 'screens/settings_screen.dart'; // 設定画面
+import 'setting/app_themes.dart';
+import 'setting/layout_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) {
     await dotenv.load();
   }
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LayoutProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '泣きメモ',
-      theme: ThemeData(primarySwatch: Colors.pink),
-      home: HomePage(),
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    return Consumer<LocaleProvider>(
+      builder: (context, provider, _) {
+        if (!provider.isLoaded) {
+          // 初期化完了までローディング画面を表示
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        return MaterialApp(
+          locale: provider.locale,
+          supportedLocales: [
+            Locale('ja', 'JP'),
+            Locale('en', 'US'),
+            Locale('zh', 'ZH'),
+          ],
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            if (provider.locale != null) return provider.locale!;
+            if (locale == null) return supportedLocales.first;
+            return supportedLocales.firstWhere(
+              (l) => l.languageCode == locale.languageCode,
+              orElse: () => supportedLocales.first,
+            );
+          },
+          title: AppLocalizations.of(context)!.nakimemo,
+          theme: appThemeData[themeProvider.theme],
+          home: HomePage(),
+        );
+      },
     );
   }
 }
@@ -36,9 +88,10 @@ class _HomePageState extends State<HomePage> {
     InputScreen(),
     CalendarScreen(),
     StatsScreen(), // 統計画面
+    SettingsScreen(), // 設定画面
   ];
 
-  final List<String> _titles = ['入力', 'カレンダー', '統計'];
+  final List<String> _titles = ['', '', '', '']; // 各画面のタイトル
 
   void _onItemTapped(int index) {
     setState(() {
@@ -54,18 +107,23 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit),
-            label: '',
+            label: '入力',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            label: '',
+            label: 'カレンダー',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: '',
+            label: '統計',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '設定',
           ),
         ],
       ),
