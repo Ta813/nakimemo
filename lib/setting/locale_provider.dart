@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +22,7 @@ class LocaleProvider extends ChangeNotifier {
       _locale = Locale(code, countryCode);
     } else {
       // 初回：端末のロケールに基づく
-      final systemLocale = WidgetsBinding.instance.window.locale;
+      final systemLocale = PlatformDispatcher.instance.locale;
       if (['ja', 'en', 'zh'].contains(systemLocale.languageCode)) {
         String countryCode = "";
         if (systemLocale.languageCode == 'ja') {

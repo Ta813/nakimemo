@@ -14,20 +14,24 @@ import 'setting/app_themes.dart';
 import 'setting/layout_provider.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (!kIsWeb) {
-    await dotenv.load();
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    if (!kIsWeb) {
+      await dotenv.load();
+    }
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => LayoutProvider()),
+        ],
+        child: MyApp(),
+      ),
+    );
+  } catch (e) {
+    print('Error loading environment variables: $e');
   }
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => LayoutProvider()),
-      ],
-      child: MyApp(),
-    ),
-  );
 }
 
 class MyApp extends StatelessWidget {
@@ -47,7 +51,7 @@ class MyApp extends StatelessWidget {
         }
 
         return MaterialApp(
-          locale: provider.locale,
+          locale: provider.locale ?? const Locale('en', 'US'),
           supportedLocales: [
             Locale('ja', 'JP'),
             Locale('en', 'US'),
@@ -67,7 +71,7 @@ class MyApp extends StatelessWidget {
               orElse: () => supportedLocales.first,
             );
           },
-          title: AppLocalizations.of(context)!.nakimemo,
+          title: "ナキメモ",
           theme: appThemeData[themeProvider.theme],
           home: HomePage(),
         );
@@ -108,22 +112,22 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.edit),
-            label: '入力',
+            icon: const Icon(Icons.edit),
+            label: AppLocalizations.of(context)!.input_label,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            label: 'カレンダー',
+            label: AppLocalizations.of(context)!.calendar_label,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: '統計',
+            label: AppLocalizations.of(context)!.stats_label,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: '設定',
+            label: AppLocalizations.of(context)!.setting_label,
           ),
         ],
       ),
