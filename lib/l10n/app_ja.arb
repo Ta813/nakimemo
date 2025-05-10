@@ -1,7 +1,7 @@
 {
   "@@locale": "ja",
   "stats_title": "統計",
-  "adviceButton": "AIのアドバイスを見る",
+  "adviceButton": "アドバイス",
   "noRecords": "記録がありません",
   "input_title": "ボタンを押してね！",
   "save_button": "保存",
@@ -17,7 +17,7 @@
   "edit_category_title": "カテゴリを編集",
   "edit_category_label": "カテゴリ",
   "stats_help_title": "統計画面の使い方",
-  "stats_help_content": "この画面では、過去の育児記録をカテゴリ別に月ごとで集計し、グラフで表示します。\n\n📌 表示カテゴリ:\n🍼 ミルク, 💩 おむつ, 🌙 夜泣き, 🐾 その他\n\n📆 上部で年月を切り替えることができます。\n\n💡「AIのアドバイスを見る」ボタンで、AIからの育児ヒントも得られます。",
+  "stats_help_content": "この画面では、過去の育児記録をカテゴリ別に月ごとで集計し、グラフで表示します。\n\n📌 表示カテゴリ:\n🍼 ミルク, 💩 おむつ, 🌙 夜泣き, 🐾 その他\n\n📆 上部で年月を切り替えることができます。\n\n💡「アドバイス」ボタンで、AIからの育児ヒントも得られます。",
   "close": "閉じる",
   "ai_advice_title": "AIアドバイス",
   "error_title": "エラー",

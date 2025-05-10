@@ -447,6 +447,40 @@ class _StatsScreenState extends State<StatsScreen> {
     }
   }
 
+  /// OpenAI APIを使用して育児の励ましメッセージを取得する
+  Future<String> fetchEncouragementFromAI() async {
+    final apiKey = dotenv.env['OPENAI_API_KEY'];
+    final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
+
+    final prompt = '''
+育児で疲れている親を励ます短いメッセージを日本語で1つ提供してください。
+''';
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: json.encode({
+        'model': 'gpt-3.5-turbo',
+        'messages': [
+          {'role': 'system', 'content': 'あなたは親を励ます優しいAIです。'},
+          {'role': 'user', 'content': prompt}
+        ],
+        'max_tokens': 100,
+        'temperature': 0.7,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      return data['choices'][0]['message']['content'].trim();
+    } else {
+      throw Exception('励ましメッセージの取得に失敗しました: ${response.statusCode}');
+    }
+  }
+
   Future<void> exportCryLogsToCsv() async {
     if (await Permission.storage.request().isGranted) {
       // CSVデータを作成
@@ -680,12 +714,48 @@ class _StatsScreenState extends State<StatsScreen> {
                 },
               ),
               ElevatedButton.icon(
+                icon: Icon(Icons.sentiment_satisfied_alt),
+                label: Text("励まし"),
+                onPressed: () async {
+                  try {
+                    final encouragement = await fetchEncouragementFromAI();
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text("AIからの励まし"),
+                        content: Text(encouragement),
+                        actions: [
+                          TextButton(
+                            child: Text("閉じる"),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                  } catch (e) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text("エラー"),
+                        content: Text("励ましメッセージの取得に失敗しました。\n\n$e"),
+                        actions: [
+                          TextButton(
+                            child: Text("閉じる"),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+              ElevatedButton.icon(
                 icon: Icon(Icons.file_download),
                 label: Text("CSV出力"),
                 onPressed: () async {
                   await exportCryLogsToCsv();
                 },
-              )
+              ),
             ])
           ],
         ),
