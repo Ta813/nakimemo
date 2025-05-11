@@ -75,16 +75,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
 
     return events;
-    final events = _eventMap[key] ?? [];
-
-    // 時間の昇順でソート
-    events.sort((a, b) {
-      final timeA = a.split(' ').first; // "HH:mm" 部分を取得
-      final timeB = b.split(' ').first;
-      return timeA.compareTo(timeB); // 時間を文字列として比較
-    });
-
-    return events;
   }
 
   String _formatDate(DateTime date) =>
@@ -373,7 +363,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _showMemoDialog(int index) async {
-    final log = _getEventsForDay(_selectedDay!)[index];
     String memo = '';
 
     await showDialog(

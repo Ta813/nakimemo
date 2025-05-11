@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-// ignore_for_file: deprecated_member_use
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nakimemo/setting/layout_provider.dart';
@@ -24,7 +22,6 @@ class _InputScreenState extends State<InputScreen> {
     {
       'label': 'ミルク',
       'icon': FontAwesomeIcons.prescriptionBottle,
-      'color': Colors.lightBlue
       'color': Colors.lightBlue
     },
     {'label': 'おむつ', 'icon': FontAwesomeIcons.poo, 'color': Colors.brown},
@@ -418,12 +415,9 @@ class _InputScreenState extends State<InputScreen> {
           Wrap(
             spacing: 20,
             runSpacing: 20, // これで縦方向に段を分ける
-            spacing: 20,
-            runSpacing: 20, // これで縦方向に段を分ける
             children: _categories.map((cat) {
               return SizedBox(
                 width: MediaQuery.of(context).size.width / 2 - 20, // 幅を調整して2列に
-                child: ElevatedButton(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cat['color'], // 背景色
