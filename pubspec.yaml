@@ -24,6 +24,7 @@ dependencies:
   path_provider: ^2.1.2
   permission_handler: ^11.0.0
   share_plus: ^7.0.2
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -31,3 +32,8 @@ flutter:
   assets:
   - lib/assets/baby_bg.png
   - .env
+
+flutter_icons:
+  android: true
+  ios : false
+  image_path: "lib/assets/nakimemo.png"

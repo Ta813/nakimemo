@@ -17,6 +17,7 @@ class InputScreen extends StatefulWidget {
 
 class _InputScreenState extends State<InputScreen> {
   List<String> _logs = [];
+  Set<int> _newlyAddedIndexes = {}; // 新規追加された行のインデックスを追跡
 
   // カテゴリの定義
   final List<Map<String, dynamic>> _categories = [
@@ -100,6 +101,14 @@ class _InputScreenState extends State<InputScreen> {
 
     setState(() {
       _logs = todayLogs;
+      _newlyAddedIndexes.add(0); // 新規追加された行のインデックスを追跡
+    });
+
+    // 一定時間後に色をリセット
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _newlyAddedIndexes.remove(0); // 色をリセット
+      });
     });
   }
 
@@ -171,6 +180,9 @@ class _InputScreenState extends State<InputScreen> {
   // 今日のログを表示するウィジェット
   Widget _itemBuilder(int index) {
     final log = _logs[index];
+    final isNew = _newlyAddedIndexes.contains(index); // 新規追加された行かどうかを判定
+    final themeColor = Theme.of(context).colorScheme.primary; // 現在のテーマの色を取得
+
     return Dismissible(
       key: Key(log + index.toString()),
       direction: DismissDirection.endToStart,
@@ -184,6 +196,7 @@ class _InputScreenState extends State<InputScreen> {
         // リストから即座に削除
         setState(() {
           _logs.removeAt(index);
+          _newlyAddedIndexes.remove(index); // 削除された行を追跡から除外
         });
 
         // 永続ストレージからも削除
@@ -206,83 +219,89 @@ class _InputScreenState extends State<InputScreen> {
           await prefs.setString('cry_logs', json.encode(data));
         }
       },
-      child: ListTile(
-        leading: Icon(
-          _getCategoryIcon(log),
-          color: _getCategoryColor(log),
-        ),
-        title: Text(log),
-        trailing: IconButton(
-          icon: Icon(Icons.note_add),
-          onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
-        ),
-        onTap: () async {
-          final timePart = log.split(' ').first;
-          final categoryPart = log.split(' ')[1];
+      child: Container(
+        color: isNew
+            ? themeColor.withOpacity(0.3)
+            : Colors.transparent, // 新規行にテーマ色を適用
+        child: ListTile(
+          leading: Icon(
+            _getCategoryIcon(log),
+            color: _getCategoryColor(log),
+          ),
+          title: Text(log),
+          trailing: IconButton(
+            icon: Icon(Icons.note_add),
+            onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
+          ),
+          onTap: () async {
+            final timePart = log.split(' ').first;
+            final categoryPart = log.split(' ')[1];
 
-          String? tempSelectedCategory = categoryPart;
+            String? tempSelectedCategory = categoryPart;
 
-          final newCategory = await showDialog<String>(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text(AppLocalizations.of(context)!.edit_category_title),
-                content: StatefulBuilder(
-                  builder: (context, setState) {
-                    return DropdownButtonFormField<String>(
-                      value: tempSelectedCategory,
-                      items: _categories.map((cat) {
-                        return DropdownMenuItem<String>(
-                          value: cat['label'],
-                          child: Text(cat['label']),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          tempSelectedCategory = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText:
-                            AppLocalizations.of(context)!.edit_category_label,
-                        border: OutlineInputBorder(),
-                      ),
-                    );
-                  },
-                ),
-                actions: [
-                  TextButton(
-                    child: Text(AppLocalizations.of(context)!.cancel_button),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  TextButton(
-                    child: Text(AppLocalizations.of(context)!.save_button),
-                    onPressed: () {
-                      if (tempSelectedCategory != null) {
-                        Navigator.pop(
-                            context, '$timePart $tempSelectedCategory');
-                      }
+            final newCategory = await showDialog<String>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title:
+                      Text(AppLocalizations.of(context)!.edit_category_title),
+                  content: StatefulBuilder(
+                    builder: (context, setState) {
+                      return DropdownButtonFormField<String>(
+                        value: tempSelectedCategory,
+                        items: _categories.map((cat) {
+                          return DropdownMenuItem<String>(
+                            value: cat['label'],
+                            child: Text(cat['label']),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            tempSelectedCategory = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText:
+                              AppLocalizations.of(context)!.edit_category_label,
+                          border: OutlineInputBorder(),
+                        ),
+                      );
                     },
                   ),
-                ],
-              );
-            },
-          );
+                  actions: [
+                    TextButton(
+                      child: Text(AppLocalizations.of(context)!.cancel_button),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: Text(AppLocalizations.of(context)!.save_button),
+                      onPressed: () {
+                        if (tempSelectedCategory != null) {
+                          Navigator.pop(
+                              context, '$timePart $tempSelectedCategory');
+                        }
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
 
-          if (newCategory != null && newCategory.trim().isNotEmpty) {
-            final prefs = await SharedPreferences.getInstance();
-            final raw = prefs.getString('cry_logs') ?? '{}';
-            final data = Map<String, dynamic>.from(json.decode(raw));
-            final todayKey = _getTodayKey();
-            final todayLogs = List<String>.from(data[todayKey] ?? []);
-            todayLogs[index] = newCategory;
-            data[todayKey] = todayLogs;
-            await prefs.setString('cry_logs', json.encode(data));
-            setState(() {
-              _logs = todayLogs;
-            });
-          }
-        },
+            if (newCategory != null && newCategory.trim().isNotEmpty) {
+              final prefs = await SharedPreferences.getInstance();
+              final raw = prefs.getString('cry_logs') ?? '{}';
+              final data = Map<String, dynamic>.from(json.decode(raw));
+              final todayKey = _getTodayKey();
+              final todayLogs = List<String>.from(data[todayKey] ?? []);
+              todayLogs[index] = newCategory;
+              data[todayKey] = todayLogs;
+              await prefs.setString('cry_logs', json.encode(data));
+              setState(() {
+                _logs = todayLogs;
+              });
+            }
+          },
+        ),
       ),
     );
   }
