@@ -361,14 +361,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // メモを追加するダイアログを表示
   Future<void> _showMemoDialog(int index) async {
-    String memo = '';
+    final log = _getEventsForDay(_selectedDay!)[index];
+    String existingMemo = '';
+
+    // 既存のメモを取得
+    if (log.contains('[メモ:')) {
+      final startIndex = log.indexOf('[メモ:') + 4;
+      final endIndex = log.lastIndexOf(']');
+      existingMemo = log.substring(startIndex + 1, endIndex).trim();
+    }
+
+    String memo = existingMemo;
 
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('メモを追加'),
+          title: Text('メモを編集'),
           content: TextField(
+            controller:
+                TextEditingController(text: existingMemo), // 既存のメモを初期値に設定
             onChanged: (value) {
               memo = value;
             },
@@ -409,7 +421,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (index >= 0 && index < dayLogs.length) {
       final log = dayLogs[index];
       final sanitizedMemo = memo.replaceAll('\n', ' '); // 改行をスペースに置き換え
-      final updatedLog = '$log [メモ: $sanitizedMemo]'; // メモをログに追加
+
+      // 既存のメモを削除して新しいメモを追加
+      final updatedLog = log.contains('[メモ:')
+          ? log.replaceFirst(RegExp(r'\[メモ:.*?\]'), '[メモ: $sanitizedMemo]')
+          : '$log [メモ: $sanitizedMemo]';
+
       dayLogs[index] = updatedLog;
 
       data[key] = dayLogs;

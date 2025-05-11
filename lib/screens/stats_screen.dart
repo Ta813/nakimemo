@@ -657,7 +657,7 @@ class _StatsScreenState extends State<StatsScreen> {
         'model': 'gpt-3.5-turbo',
         'messages': [
           {'role': 'system', 'content': 'あなたは親切で知識豊富なアシスタントです。'},
-          {'role': 'user', 'content': '$question 200文字以内で答えてください。'},
+          {'role': 'user', 'content': '$question 150文字以内で答えてください。'},
         ],
         'max_tokens': 200,
         'temperature': 0.7,
@@ -836,7 +836,7 @@ class _StatsScreenState extends State<StatsScreen> {
               style: Theme.of(context).textTheme.titleMedium, // タイトルのスタイル
             ),
             const SizedBox(height: 10),
-            Row(spacing: 10, children: [
+            Row(spacing: 5, children: [
               ElevatedButton.icon(
                 icon: Icon(Icons.lightbulb),
                 label: Text(AppLocalizations.of(context)!.adviceButton),
