@@ -32,6 +32,7 @@ class _StatsScreenState extends State<StatsScreen> {
     _updateCategoryCounts();
   }
 
+  /// カテゴリ別の件数を更新する
   void _updateCategoryCounts() async {
     if (_selectedUnit == DisplayUnit.month) {
       final counts =
@@ -108,6 +109,10 @@ class _StatsScreenState extends State<StatsScreen> {
     return counts;
   }
 
+  /// 週ごとのカテゴリ別の件数を取得する
+  /// [year] : 年
+  /// [month] : 月
+  /// [week] : 週
   Future<Map<String, int>> getWeeklyCategoryCounts(
       int year, int month, int week) async {
     final allLogs = await _loadAllLogs();
@@ -157,6 +162,7 @@ class _StatsScreenState extends State<StatsScreen> {
     return counts;
   }
 
+  /// 週ごとのカテゴリ別の件数を取得する
   Future<Map<String, int>> getDailyCategoryCounts(
       int year, int month, int day) async {
     final allLogs = await _loadAllLogs();
@@ -194,6 +200,10 @@ class _StatsScreenState extends State<StatsScreen> {
     return counts;
   }
 
+  /// 全てのカテゴリ別の件数を取得する
+  /// [key] : YYYY-MM形式の文字列
+  /// [month] : 月
+  /// [year] : 年
   Future<Map<String, int>> getAllCategoryCounts() async {
     final allLogs = await _loadAllLogs();
     final counts = <String, int>{};
@@ -313,6 +323,7 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
+  /// カテゴリごとの件数を取得する
   Widget _buildDateSelector() {
     switch (_selectedUnit) {
       case DisplayUnit.month:
@@ -326,6 +337,7 @@ class _StatsScreenState extends State<StatsScreen> {
     }
   }
 
+  /// カテゴリごとの件数を取得する
   Widget _buildMonthSelector() {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       DropdownButton<int>(
@@ -360,6 +372,7 @@ class _StatsScreenState extends State<StatsScreen> {
     ]);
   }
 
+  /// カテゴリごとの件数を取得する
   Widget _buildWeekSelector() {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       DropdownButton<int>(
@@ -410,6 +423,7 @@ class _StatsScreenState extends State<StatsScreen> {
     ]);
   }
 
+  /// カテゴリごとの件数を取得する
   Widget _buildDaySelector() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -534,6 +548,7 @@ class _StatsScreenState extends State<StatsScreen> {
     }
   }
 
+  /// OpenAI APIを使用して相談内容を取得する
   Future<void> _showConsultationDialog() async {
     String userInput = '';
 
@@ -572,6 +587,7 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
+  /// OpenAI APIを使用して質問に対する回答を取得する
   Future<void> _fetchAIResponse(String question) async {
     try {
       // ローディングインジケーターを表示
@@ -626,6 +642,7 @@ class _StatsScreenState extends State<StatsScreen> {
     }
   }
 
+  /// OpenAI APIを使用して質問に対する回答を取得する
   Future<String> fetchAIResponse(String question) async {
     final apiKey = dotenv.env['OPENAI_API_KEY'];
     final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
@@ -640,7 +657,7 @@ class _StatsScreenState extends State<StatsScreen> {
         'model': 'gpt-3.5-turbo',
         'messages': [
           {'role': 'system', 'content': 'あなたは親切で知識豊富なアシスタントです。'},
-          {'role': 'user', 'content': question},
+          {'role': 'user', 'content': '$question 200文字以内で答えてください。'},
         ],
         'max_tokens': 200,
         'temperature': 0.7,

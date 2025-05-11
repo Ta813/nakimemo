@@ -17,6 +17,7 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  // カテゴリのリスト
   final List<Map<String, dynamic>> _categories = [
     {
       'label': 'ミルク',
@@ -51,6 +52,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _loadEvents();
   }
 
+  // SharedPreferencesからイベントを読み込む
   Future<void> _loadEvents() async {
     final prefs = await SharedPreferences.getInstance();
     final rawData = prefs.getString('cry_logs') ?? '{}';
@@ -63,6 +65,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
   }
 
+  // 選択された日のイベントを取得
   List<String> _getEventsForDay(DateTime day) {
     final key = _formatDate(day);
     final events = _eventMap[key] ?? [];
@@ -77,10 +80,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return events;
   }
 
+  // 日付を "YYYY-MM-DD" 形式にフォーマット
   String _formatDate(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-  // カテゴリに応じたアイコンを返す
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
@@ -94,7 +97,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   // カテゴリに応じた色を返す
-  // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.brown;
@@ -106,6 +108,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Colors.black45;
   }
 
+  // イベントを削除する
   Future<void> _removeEvent(int index) async {
     final prefs = await SharedPreferences.getInstance();
     final key = _formatDate(_selectedDay!);
@@ -125,6 +128,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     setState(() {});
   }
 
+  // ヘルプダイアログを表示
   void _showHelpDialog() {
     showDialog(
       context: context,
@@ -153,6 +157,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // カテゴリに応じたアイコンを返す
   Widget _itemBuilder(int index) {
     final log = _getEventsForDay(_selectedDay!)[index];
     return Dismissible(
@@ -249,6 +254,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // 記録を追加するダイアログを表示
   Future<void> _showAddLogDialog() async {
     String? selectedCategory;
     TimeOfDay? selectedTime = TimeOfDay.now();
@@ -332,6 +338,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // 選択された日にログを追加
   Future<void> _addLogToSelectedDate(String log, DateTime date) async {
     final prefs = await SharedPreferences.getInstance();
     final rawData = prefs.getString('cry_logs') ?? '{}';
@@ -351,6 +358,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
   }
 
+  // メモを追加するダイアログを表示
   Future<void> _showMemoDialog(int index) async {
     String memo = '';
 
@@ -389,6 +397,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // メモを保存する
   Future<void> _saveMemo(int index, String memo) async {
     final prefs = await SharedPreferences.getInstance();
     final rawData = prefs.getString('cry_logs') ?? '{}';

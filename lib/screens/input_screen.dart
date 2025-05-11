@@ -18,6 +18,7 @@ class InputScreen extends StatefulWidget {
 class _InputScreenState extends State<InputScreen> {
   List<String> _logs = [];
 
+  // カテゴリの定義
   final List<Map<String, dynamic>> _categories = [
     {
       'label': 'ミルク',
@@ -46,11 +47,16 @@ class _InputScreenState extends State<InputScreen> {
     _loadTodayLogs();
   }
 
+  // 今日の日付をキーにしたログの取得
+  // 形式: YYYY-MM-DD
+  // 例: 2023-10-01
   String _getTodayKey() {
     final now = DateTime.now();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
+  // 今日のログをSharedPreferencesから取得
+  // 取得したログは降順にソートして表示
   Future<void> _loadTodayLogs() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('cry_logs') ?? '{}';
@@ -69,6 +75,8 @@ class _InputScreenState extends State<InputScreen> {
     });
   }
 
+  // ログを追加するメソッド
+  // 引数はカテゴリ名
   Future<void> _addLog(String category) async {
     final now = DateTime.now();
     final timeStr = DateFormat('HH:mm:ss').format(now);
@@ -95,6 +103,7 @@ class _InputScreenState extends State<InputScreen> {
     });
   }
 
+  // 今日のログを削除するメソッド
   Future<void> _clearTodayLogs() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('cry_logs') ?? '{}';
@@ -107,6 +116,7 @@ class _InputScreenState extends State<InputScreen> {
     });
   }
 
+  // ヘルプダイアログを表示するメソッド
   void _showHelpDialog() {
     showDialog(
       context: context,
@@ -158,6 +168,7 @@ class _InputScreenState extends State<InputScreen> {
     return Colors.black45;
   }
 
+  // 今日のログを表示するウィジェット
   Widget _itemBuilder(int index) {
     final log = _logs[index];
     return Dismissible(
@@ -276,6 +287,7 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 
+  // メモ追加ダイアログを表示するメソッド
   Future<void> _showMemoDialog(int index) async {
     String memo = '';
 
@@ -314,6 +326,7 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 
+  // メモを保存するメソッド
   Future<void> _saveMemo(int index, String memo) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('cry_logs') ?? '{}';
