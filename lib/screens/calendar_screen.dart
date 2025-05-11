@@ -90,11 +90,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
     if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
     if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
-    if (log.contains('眠い')) return FontAwesomeIcons.moon;
-    if (log.contains('抱っこ')) return FontAwesomeIcons.child;
-    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
-    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
-    if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
 
@@ -102,13 +97,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
-    if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.brown;
-    if (log.contains('眠い')) return Colors.amber;
-    if (log.contains('抱っこ')) return Colors.grey;
-    if (log.contains('騒音')) return Colors.orange;
-    if (log.contains('気温')) return Colors.green;
-    if (log.contains('体調不良')) return Colors.red;
     if (log.contains('眠い')) return Colors.amber;
     if (log.contains('抱っこ')) return Colors.grey;
     if (log.contains('騒音')) return Colors.orange;

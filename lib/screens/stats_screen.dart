@@ -57,11 +57,6 @@ class _StatsScreenState extends State<StatsScreen> {
       setState(() {
         categoryCounts = counts;
       });
-    } else if (_selectedUnit == DisplayUnit.all) {
-      final counts = await getAllCategoryCounts();
-      setState(() {
-        categoryCounts = counts;
-      });
     }
   }
 
@@ -92,16 +87,6 @@ class _StatsScreenState extends State<StatsScreen> {
             counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
           } else if (log.contains('おむつ')) {
             counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
-          } else if (log.contains('眠い')) {
-            counts['眠い'] = (counts['眠い'] ?? 0) + 1;
-          } else if (log.contains('抱っこ')) {
-            counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-          } else if (log.contains('騒音')) {
-            counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-          } else if (log.contains('気温')) {
-            counts['気温'] = (counts['気温'] ?? 0) + 1;
-          } else if (log.contains('体調不良')) {
-            counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
           } else if (log.contains('眠い')) {
             counts['眠い'] = (counts['眠い'] ?? 0) + 1;
           } else if (log.contains('抱っこ')) {
@@ -161,16 +146,6 @@ class _StatsScreenState extends State<StatsScreen> {
           counts['気温'] = (counts['気温'] ?? 0) + 1;
         } else if (log.contains('体調不良')) {
           counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
-        } else if (log.contains('眠い')) {
-          counts['眠い'] = (counts['眠い'] ?? 0) + 1;
-        } else if (log.contains('抱っこ')) {
-          counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-        } else if (log.contains('騒音')) {
-          counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-        } else if (log.contains('気温')) {
-          counts['気温'] = (counts['気温'] ?? 0) + 1;
-        } else if (log.contains('体調不良')) {
-          counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
         }
       }
       logs[entry.key] = List<String>.from(entry.value);
@@ -198,16 +173,6 @@ class _StatsScreenState extends State<StatsScreen> {
             counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
           } else if (log.contains('おむつ')) {
             counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
-          } else if (log.contains('眠い')) {
-            counts['眠い'] = (counts['眠い'] ?? 0) + 1;
-          } else if (log.contains('抱っこ')) {
-            counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-          } else if (log.contains('騒音')) {
-            counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-          } else if (log.contains('気温')) {
-            counts['気温'] = (counts['気温'] ?? 0) + 1;
-          } else if (log.contains('体調不良')) {
-            counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
           } else if (log.contains('眠い')) {
             counts['眠い'] = (counts['眠い'] ?? 0) + 1;
           } else if (log.contains('抱っこ')) {
