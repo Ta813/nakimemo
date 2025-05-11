@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nakimemo/setting/layout_provider.dart';
@@ -20,11 +22,22 @@ class _InputScreenState extends State<InputScreen> {
     {
       'label': 'ミルク',
       'icon': FontAwesomeIcons.prescriptionBottle,
-      'color': Colors.tealAccent
+      'color': Colors.lightBlue
     },
     {'label': 'おむつ', 'icon': FontAwesomeIcons.poo, 'color': Colors.brown},
-    {'label': '夜泣き', 'icon': FontAwesomeIcons.moon, 'color': Colors.amber},
-    {'label': 'その他', 'icon': FontAwesomeIcons.paw, 'color': Colors.grey},
+    {'label': '眠い', 'icon': FontAwesomeIcons.moon, 'color': Colors.amber},
+    {'label': '抱っこ', 'icon': FontAwesomeIcons.child, 'color': Colors.grey},
+    {'label': '騒音', 'icon': FontAwesomeIcons.volumeUp, 'color': Colors.orange},
+    {
+      'label': '気温',
+      'icon': FontAwesomeIcons.thermometerHalf,
+      'color': Colors.green
+    },
+    {
+      'label': '体調不良',
+      'icon': FontAwesomeIcons.headSideCough,
+      'color': Colors.red
+    },
   ];
 
   @override
@@ -121,19 +134,27 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 
+  // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
     if (log.contains('おむつ')) return FontAwesomeIcons.poo;
-    if (log.contains('夜泣き')) return FontAwesomeIcons.moon;
-    if (log.contains('その他')) return FontAwesomeIcons.paw;
+    if (log.contains('眠い')) return FontAwesomeIcons.moon;
+    if (log.contains('抱っこ')) return FontAwesomeIcons.child;
+    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
+    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
 
+  // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
-    if (log.contains('ミルク')) return Colors.tealAccent;
+    if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.brown;
-    if (log.contains('夜泣き')) return Colors.amber;
-    if (log.contains('その他')) return Colors.grey;
+    if (log.contains('眠い')) return Colors.amber;
+    if (log.contains('抱っこ')) return Colors.grey;
+    if (log.contains('騒音')) return Colors.orange;
+    if (log.contains('気温')) return Colors.green;
+    if (log.contains('体調不良')) return Colors.red;
     return Colors.black45;
   }
 
@@ -149,17 +170,30 @@ class _InputScreenState extends State<InputScreen> {
         child: Icon(Icons.delete, color: Colors.white),
       ),
       onDismissed: (_) async {
+        // リストから即座に削除
+        setState(() {
+          _logs.removeAt(index);
+        });
+
+        // 永続ストレージからも削除
         final prefs = await SharedPreferences.getInstance();
         final raw = prefs.getString('cry_logs') ?? '{}';
         final data = Map<String, dynamic>.from(json.decode(raw));
         final todayKey = _getTodayKey();
         final todayLogs = List<String>.from(data[todayKey] ?? []);
-        todayLogs.removeAt(index);
-        data[todayKey] = todayLogs;
-        await prefs.setString('cry_logs', json.encode(data));
-        setState(() {
-          _logs = todayLogs;
-        });
+        if (index >= 0 && index < todayLogs.length) {
+          todayLogs.removeAt(index);
+
+          // リストを降順にソート
+          todayLogs.sort((a, b) {
+            final timeA = a.split(' ').first;
+            final timeB = b.split(' ').first;
+            return timeB.compareTo(timeA); // 降順
+          });
+
+          data[todayKey] = todayLogs;
+          await prefs.setString('cry_logs', json.encode(data));
+        }
       },
       child: ListTile(
         leading: Icon(
@@ -264,20 +298,35 @@ class _InputScreenState extends State<InputScreen> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 20),
           Wrap(
-            spacing: 10,
-            runSpacing: 10, // これで縦方向に段を分ける
+            spacing: 20,
+            runSpacing: 20, // これで縦方向に段を分ける
             children: _categories.map((cat) {
               return SizedBox(
                 width: MediaQuery.of(context).size.width / 2 - 20, // 幅を調整して2列に
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: cat['color'],
+                    backgroundColor: cat['color'], // 背景色
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // ボタンを丸くする
+                    ),
+                    elevation: 5, // 影を追加
                   ),
-                  icon: Icon(cat['icon'], color: Colors.white),
-                  label:
-                      Text(cat['label'], style: TextStyle(color: Colors.white)),
                   onPressed: () => _addLog(cat['label']),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(cat['icon'],
+                          color: Colors.white, size: 30), // アイコンを大きく
+                      const SizedBox(height: 20),
+                      Text(
+                        cat['label'],
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }).toList(),

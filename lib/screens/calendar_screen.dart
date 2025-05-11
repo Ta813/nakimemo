@@ -41,25 +41,42 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   List<String> _getEventsForDay(DateTime day) {
     final key = _formatDate(day);
-    return _eventMap[key] ?? [];
+    final events = _eventMap[key] ?? [];
+
+    // 時間の昇順でソート
+    events.sort((a, b) {
+      final timeA = a.split(' ').first; // "HH:mm" 部分を取得
+      final timeB = b.split(' ').first;
+      return timeA.compareTo(timeB); // 時間を文字列として比較
+    });
+
+    return events;
   }
 
   String _formatDate(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
+  // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
     if (log.contains('おむつ')) return FontAwesomeIcons.poo;
-    if (log.contains('夜泣き')) return FontAwesomeIcons.moon;
-    if (log.contains('その他')) return FontAwesomeIcons.paw;
+    if (log.contains('眠い')) return FontAwesomeIcons.moon;
+    if (log.contains('抱っこ')) return FontAwesomeIcons.child;
+    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
+    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
 
+  // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
-    if (log.contains('ミルク')) return Colors.tealAccent;
+    if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.brown;
-    if (log.contains('夜泣き')) return Colors.amber;
-    if (log.contains('その他')) return Colors.grey;
+    if (log.contains('眠い')) return Colors.amber;
+    if (log.contains('抱っこ')) return Colors.grey;
+    if (log.contains('騒音')) return Colors.orange;
+    if (log.contains('気温')) return Colors.green;
+    if (log.contains('体調不良')) return Colors.red;
     return Colors.black45;
   }
 
@@ -144,8 +161,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   items: [
                     'ミルク',
                     'おむつ',
-                    '夜泣き',
-                    'その他',
+                    '眠い',
+                    '抱っこ',
+                    '騒音',
+                    '気温',
+                    '体調不良',
                   ].map((label) {
                     return DropdownMenuItem<String>(
                       value: label,
@@ -200,6 +220,108 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  Future<void> _showAddLogDialog() async {
+    String? selectedCategory;
+    TimeOfDay? selectedTime = TimeOfDay.now();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('記録を追加'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'カテゴリを選択',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      'ミルク',
+                      'おむつ',
+                      '眠い',
+                      '抱っこ',
+                      '騒音',
+                      '気温',
+                      '体調不良',
+                    ].map((label) {
+                      return DropdownMenuItem<String>(
+                        value: label,
+                        child: Text(label),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      selectedCategory = value;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime!,
+                      );
+                      if (time != null) {
+                        setState(() {
+                          selectedTime = time; // 時間を更新
+                        });
+                      }
+                    },
+                    child:
+                        Text('時間を選択: ${selectedTime?.format(context) ?? ''}'),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  child: Text('キャンセル'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                  child: Text('追加'),
+                  onPressed: () {
+                    if (selectedCategory != null && selectedTime != null) {
+                      final now = DateTime.now();
+                      final selectedDate = _selectedDay ?? now;
+                      final formattedTime =
+                          '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}';
+                      final log = '$formattedTime:00 $selectedCategory';
+
+                      _addLogToSelectedDate(log, selectedDate);
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _addLogToSelectedDate(String log, DateTime date) async {
+    final prefs = await SharedPreferences.getInstance();
+    final rawData = prefs.getString('cry_logs') ?? '{}';
+    final data = Map<String, dynamic>.from(json.decode(rawData));
+
+    final key = _formatDate(date);
+    final dayLogs = List<String>.from(data[key] ?? []);
+    dayLogs.add(log);
+    data[key] = dayLogs;
+
+    await prefs.setString('cry_logs', json.encode(data));
+
+    setState(() {
+      _eventMap = data.map(
+        (k, v) => MapEntry(k, List<String>.from(v)),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final layoutProvider = Provider.of<LayoutProvider>(context);
@@ -236,6 +358,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 shape: BoxShape.circle,
               ),
             ),
+          ),
+          const Divider(
+            thickness: 1, // 線の太さ
+            color: Colors.grey, // 線の色
+            height: 20, // 線の上下の余白
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end, // ボタンを右寄せ
+            children: [
+              IconButton(
+                icon: Icon(Icons.add),
+                tooltip: '追加',
+                onPressed: () async {
+                  await _showAddLogDialog();
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 8.0),
           Expanded(
