@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nakimemo/setting/layout_provider.dart';
@@ -23,8 +25,22 @@ class _InputScreenState extends State<InputScreen> {
       'label': 'ミルク',
       'icon': FontAwesomeIcons.prescriptionBottle,
       'color': Colors.lightBlue
+      'color': Colors.lightBlue
     },
     {'label': 'おむつ', 'icon': FontAwesomeIcons.poo, 'color': Colors.brown},
+    {'label': '眠い', 'icon': FontAwesomeIcons.moon, 'color': Colors.amber},
+    {'label': '抱っこ', 'icon': FontAwesomeIcons.child, 'color': Colors.grey},
+    {'label': '騒音', 'icon': FontAwesomeIcons.volumeUp, 'color': Colors.orange},
+    {
+      'label': '気温',
+      'icon': FontAwesomeIcons.thermometerHalf,
+      'color': Colors.green
+    },
+    {
+      'label': '体調不良',
+      'icon': FontAwesomeIcons.headSideCough,
+      'color': Colors.red
+    },
     {'label': '眠い', 'icon': FontAwesomeIcons.moon, 'color': Colors.amber},
     {'label': '抱っこ', 'icon': FontAwesomeIcons.child, 'color': Colors.grey},
     {'label': '騒音', 'icon': FontAwesomeIcons.volumeUp, 'color': Colors.orange},
@@ -135,9 +151,15 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   // カテゴリに応じたアイコンを返す
+  // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
     if (log.contains('おむつ')) return FontAwesomeIcons.poo;
+    if (log.contains('眠い')) return FontAwesomeIcons.moon;
+    if (log.contains('抱っこ')) return FontAwesomeIcons.child;
+    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
+    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
     if (log.contains('抱っこ')) return FontAwesomeIcons.child;
     if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
@@ -147,9 +169,16 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   // カテゴリに応じた色を返す
+  // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
+    if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.brown;
+    if (log.contains('眠い')) return Colors.amber;
+    if (log.contains('抱っこ')) return Colors.grey;
+    if (log.contains('騒音')) return Colors.orange;
+    if (log.contains('気温')) return Colors.green;
+    if (log.contains('体調不良')) return Colors.red;
     if (log.contains('眠い')) return Colors.amber;
     if (log.contains('抱っこ')) return Colors.grey;
     if (log.contains('騒音')) return Colors.orange;
@@ -176,11 +205,30 @@ class _InputScreenState extends State<InputScreen> {
         });
 
         // 永続ストレージからも削除
+        // リストから即座に削除
+        setState(() {
+          _logs.removeAt(index);
+        });
+
+        // 永続ストレージからも削除
         final prefs = await SharedPreferences.getInstance();
         final raw = prefs.getString('cry_logs') ?? '{}';
         final data = Map<String, dynamic>.from(json.decode(raw));
         final todayKey = _getTodayKey();
         final todayLogs = List<String>.from(data[todayKey] ?? []);
+        if (index >= 0 && index < todayLogs.length) {
+          todayLogs.removeAt(index);
+
+          // リストを降順にソート
+          todayLogs.sort((a, b) {
+            final timeA = a.split(' ').first;
+            final timeB = b.split(' ').first;
+            return timeB.compareTo(timeA); // 降順
+          });
+
+          data[todayKey] = todayLogs;
+          await prefs.setString('cry_logs', json.encode(data));
+        }
         if (index >= 0 && index < todayLogs.length) {
           todayLogs.removeAt(index);
 
@@ -366,12 +414,16 @@ class _InputScreenState extends State<InputScreen> {
       body: Column(
         children: [
           const SizedBox(height: 20),
+          const SizedBox(height: 20),
           Wrap(
+            spacing: 20,
+            runSpacing: 20, // これで縦方向に段を分ける
             spacing: 20,
             runSpacing: 20, // これで縦方向に段を分ける
             children: _categories.map((cat) {
               return SizedBox(
                 width: MediaQuery.of(context).size.width / 2 - 20, // 幅を調整して2列に
+                child: ElevatedButton(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cat['color'], // 背景色

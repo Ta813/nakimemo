@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +21,7 @@ class StatsScreen extends StatefulWidget {
   _StatsScreenState createState() => _StatsScreenState();
 }
 
+enum DisplayUnit { month, week, day, all }
 enum DisplayUnit { month, week, day, all }
 
 class _StatsScreenState extends State<StatsScreen> {
@@ -62,6 +65,11 @@ class _StatsScreenState extends State<StatsScreen> {
       setState(() {
         categoryCounts = counts;
       });
+    } else if (_selectedUnit == DisplayUnit.all) {
+      final counts = await getAllCategoryCounts();
+      setState(() {
+        categoryCounts = counts;
+      });
     }
   }
 
@@ -92,6 +100,16 @@ class _StatsScreenState extends State<StatsScreen> {
             counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
           } else if (log.contains('おむつ')) {
             counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
+          } else if (log.contains('眠い')) {
+            counts['眠い'] = (counts['眠い'] ?? 0) + 1;
+          } else if (log.contains('抱っこ')) {
+            counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
+          } else if (log.contains('騒音')) {
+            counts['騒音'] = (counts['騒音'] ?? 0) + 1;
+          } else if (log.contains('気温')) {
+            counts['気温'] = (counts['気温'] ?? 0) + 1;
+          } else if (log.contains('体調不良')) {
+            counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
           } else if (log.contains('眠い')) {
             counts['眠い'] = (counts['眠い'] ?? 0) + 1;
           } else if (log.contains('抱っこ')) {
@@ -151,6 +169,16 @@ class _StatsScreenState extends State<StatsScreen> {
           counts['気温'] = (counts['気温'] ?? 0) + 1;
         } else if (log.contains('体調不良')) {
           counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
+        } else if (log.contains('眠い')) {
+          counts['眠い'] = (counts['眠い'] ?? 0) + 1;
+        } else if (log.contains('抱っこ')) {
+          counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
+        } else if (log.contains('騒音')) {
+          counts['騒音'] = (counts['騒音'] ?? 0) + 1;
+        } else if (log.contains('気温')) {
+          counts['気温'] = (counts['気温'] ?? 0) + 1;
+        } else if (log.contains('体調不良')) {
+          counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
         }
       }
       logs[entry.key] = List<String>.from(entry.value);
@@ -188,6 +216,16 @@ class _StatsScreenState extends State<StatsScreen> {
             counts['気温'] = (counts['気温'] ?? 0) + 1;
           } else if (log.contains('体調不良')) {
             counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
+          } else if (log.contains('眠い')) {
+            counts['眠い'] = (counts['眠い'] ?? 0) + 1;
+          } else if (log.contains('抱っこ')) {
+            counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
+          } else if (log.contains('騒音')) {
+            counts['騒音'] = (counts['騒音'] ?? 0) + 1;
+          } else if (log.contains('気温')) {
+            counts['気温'] = (counts['気温'] ?? 0) + 1;
+          } else if (log.contains('体調不良')) {
+            counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
           }
         }
         logs[entry.key] = List<String>.from(entry.value);
@@ -199,6 +237,59 @@ class _StatsScreenState extends State<StatsScreen> {
     return counts;
   }
 
+  Future<Map<String, int>> getAllCategoryCounts() async {
+    final allLogs = await _loadAllLogs();
+    final counts = <String, int>{};
+    final logs = Map<String, List<String>>();
+
+    for (final entry in allLogs.entries) {
+      for (final log in entry.value) {
+        if (log.contains('ミルク')) {
+          counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
+        } else if (log.contains('おむつ')) {
+          counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
+        } else if (log.contains('眠い')) {
+          counts['眠い'] = (counts['眠い'] ?? 0) + 1;
+        } else if (log.contains('抱っこ')) {
+          counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
+        } else if (log.contains('騒音')) {
+          counts['騒音'] = (counts['騒音'] ?? 0) + 1;
+        } else if (log.contains('気温')) {
+          counts['気温'] = (counts['気温'] ?? 0) + 1;
+        } else if (log.contains('体調不良')) {
+          counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
+        }
+      }
+      logs[entry.key] = List<String>.from(entry.value);
+    }
+    setState(() {
+      selectedLogs = logs;
+    });
+    return counts;
+  }
+
+  // カテゴリに応じたアイコンを返す
+  IconData _getCategoryIcon(String log) {
+    if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
+    if (log.contains('おむつ')) return FontAwesomeIcons.poo;
+    if (log.contains('眠い')) return FontAwesomeIcons.moon;
+    if (log.contains('抱っこ')) return FontAwesomeIcons.child;
+    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
+    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
+    return Icons.help_outline;
+  }
+
+  // カテゴリに応じた色を返す
+  Color _getCategoryColor(String log) {
+    if (log.contains('ミルク')) return Colors.lightBlue;
+    if (log.contains('おむつ')) return Colors.brown;
+    if (log.contains('眠い')) return Colors.amber;
+    if (log.contains('抱っこ')) return Colors.grey;
+    if (log.contains('騒音')) return Colors.orange;
+    if (log.contains('気温')) return Colors.green;
+    if (log.contains('体調不良')) return Colors.red;
+    return Colors.black45;
   Future<Map<String, int>> getAllCategoryCounts() async {
     final allLogs = await _loadAllLogs();
     final counts = <String, int>{};
@@ -310,6 +401,7 @@ class _StatsScreenState extends State<StatsScreen> {
             setState(() {
               _selectedUnit = value!;
               _updateCategoryCounts();
+              _updateCategoryCounts();
             });
           },
         ),
@@ -326,6 +418,8 @@ class _StatsScreenState extends State<StatsScreen> {
         return _buildWeekSelector();
       case DisplayUnit.day:
         return _buildDaySelector();
+      case DisplayUnit.all:
+        return Container();
       case DisplayUnit.all:
         return Container();
     }
@@ -587,7 +681,122 @@ class _StatsScreenState extends State<StatsScreen> {
           child: CircularProgressIndicator(),
         ),
       );
+  Future<void> _showConsultationDialog() async {
+    String userInput = '';
 
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("AIに相談する"),
+          content: TextField(
+            onChanged: (value) {
+              userInput = value;
+            },
+            decoration: InputDecoration(
+              hintText: "相談内容を入力してください",
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+          ),
+          actions: [
+            TextButton(
+              child: Text("キャンセル"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: Text("送信"),
+              onPressed: () async {
+                Navigator.pop(context); // ダイアログを閉じる
+                if (userInput.isNotEmpty) {
+                  await _fetchAIResponse(userInput);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _fetchAIResponse(String question) async {
+    try {
+      // ローディングインジケーターを表示
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // AIからの回答を取得
+      final response = await fetchAIResponse(question);
+
+      // ローディングインジケーターを閉じる
+      Navigator.pop(context);
+
+      // 回答を表示
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("AIの回答"),
+          content: SingleChildScrollView(
+            child: Text(response), // 結果をスクロール可能にする
+          ),
+          actions: [
+            TextButton(
+              child: Text("閉じる"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // ローディングインジケーターを閉じる
+      Navigator.pop(context);
+
+      // エラーダイアログを表示
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("エラー"),
+          content: Text("AIの回答を取得できませんでした。\n\n$e"),
+          actions: [
+            TextButton(
+              child: Text("閉じる"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<String> fetchAIResponse(String question) async {
+    final apiKey = dotenv.env['OPENAI_API_KEY'];
+    final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: json.encode({
+        'model': 'gpt-3.5-turbo',
+        'messages': [
+          {'role': 'system', 'content': 'あなたは親切で知識豊富なアシスタントです。'},
+          {'role': 'user', 'content': question},
+        ],
+        'max_tokens': 200,
+        'temperature': 0.7,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      return data['choices'][0]['message']['content'].trim();
       // AIからの回答を取得
       final response = await fetchAIResponse(question);
 
@@ -657,6 +866,7 @@ class _StatsScreenState extends State<StatsScreen> {
       return data['choices'][0]['message']['content'].trim();
     } else {
       throw Exception('AIの回答取得に失敗しました: ${response.statusCode}');
+      throw Exception('AIの回答取得に失敗しました: ${response.statusCode}');
     }
   }
 
@@ -698,6 +908,7 @@ class _StatsScreenState extends State<StatsScreen> {
                 _buildUnitRadio(DisplayUnit.day, '日'),
                 _buildUnitRadio(DisplayUnit.week, '週'),
                 _buildUnitRadio(DisplayUnit.month, '月'),
+                _buildUnitRadio(DisplayUnit.all, '全体'),
                 _buildUnitRadio(DisplayUnit.all, '全体'),
               ],
             ),
@@ -825,6 +1036,12 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
             const SizedBox(height: 10),
             Row(spacing: 5, children: [
+            Text(
+              "AI機能",
+              style: Theme.of(context).textTheme.titleMedium, // タイトルのスタイル
+            ),
+            const SizedBox(height: 10),
+            Row(spacing: 5, children: [
               ElevatedButton.icon(
                 icon: Icon(Icons.lightbulb),
                 label: Text(AppLocalizations.of(context)!.adviceButton),
@@ -839,8 +1056,21 @@ class _StatsScreenState extends State<StatsScreen> {
                       ),
                     );
 
+                    // ローディングインジケーターを表示
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false, // ダイアログ外をタップしても閉じない
+                      builder: (context) => Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+
                     final advice =
                         await fetchParentingAdviceFromOpenAI(categoryCounts);
+
+                    // ローディングインジケーターを閉じる
+                    Navigator.pop(context);
+
 
                     // ローディングインジケーターを閉じる
                     Navigator.pop(context);
@@ -892,7 +1122,20 @@ class _StatsScreenState extends State<StatsScreen> {
                       ),
                     );
 
+                    // ローディングインジケーターを表示
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false, // ダイアログ外をタップしても閉じない
+                      builder: (context) => Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+
                     final encouragement = await fetchEncouragementFromAI();
+
+                    // ローディングインジケーターを閉じる
+                    Navigator.pop(context);
+
 
                     // ローディングインジケーターを閉じる
                     Navigator.pop(context);
@@ -930,7 +1173,10 @@ class _StatsScreenState extends State<StatsScreen> {
               ElevatedButton.icon(
                 icon: Icon(Icons.chat),
                 label: Text("相談"),
+                icon: Icon(Icons.chat),
+                label: Text("相談"),
                 onPressed: () async {
+                  await _showConsultationDialog();
                   await _showConsultationDialog();
                 },
               ),

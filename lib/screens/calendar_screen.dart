@@ -75,11 +75,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
 
     return events;
+    final events = _eventMap[key] ?? [];
+
+    // 時間の昇順でソート
+    events.sort((a, b) {
+      final timeA = a.split(' ').first; // "HH:mm" 部分を取得
+      final timeB = b.split(' ').first;
+      return timeA.compareTo(timeB); // 時間を文字列として比較
+    });
+
+    return events;
   }
 
   String _formatDate(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
+  // カテゴリに応じたアイコンを返す
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
@@ -89,13 +100,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
     if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
     if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
+    if (log.contains('眠い')) return FontAwesomeIcons.moon;
+    if (log.contains('抱っこ')) return FontAwesomeIcons.child;
+    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
+    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
 
   // カテゴリに応じた色を返す
+  // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
+    if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.brown;
+    if (log.contains('眠い')) return Colors.amber;
+    if (log.contains('抱っこ')) return Colors.grey;
+    if (log.contains('騒音')) return Colors.orange;
+    if (log.contains('気温')) return Colors.green;
+    if (log.contains('体調不良')) return Colors.red;
     if (log.contains('眠い')) return Colors.amber;
     if (log.contains('抱っこ')) return Colors.grey;
     if (log.contains('騒音')) return Colors.orange;
