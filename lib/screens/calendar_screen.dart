@@ -114,7 +114,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final key = _formatDate(_selectedDay!);
     final events = List<String>.from(_eventMap[key]!);
 
-    events.removeAt(index);
+    // リストから即座に削除
+    setState(() {
+      events.removeAt(index);
+    });
 
     if (events.isEmpty) {
       _eventMap.remove(key);
@@ -124,8 +127,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _eventMap[key] = events;
       await prefs.setString('cry_logs', json.encode(_eventMap));
     }
-
-    setState(() {});
   }
 
   // ヘルプダイアログを表示
@@ -407,7 +408,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     if (index >= 0 && index < dayLogs.length) {
       final log = dayLogs[index];
-      final updatedLog = '$log [メモ: $memo]'; // メモをログに追加
+      final sanitizedMemo = memo.replaceAll('\n', ' '); // 改行をスペースに置き換え
+      final updatedLog = '$log [メモ: $sanitizedMemo]'; // メモをログに追加
       dayLogs[index] = updatedLog;
 
       data[key] = dayLogs;

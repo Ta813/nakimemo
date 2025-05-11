@@ -831,12 +831,12 @@ class _StatsScreenState extends State<StatsScreen> {
                       ),
                     ),
             ),
-            Row(children: [
-              Text(
-                "AI機能",
-                style: Theme.of(context).textTheme.titleMedium, // タイトルのスタイル
-              ),
-              const SizedBox(height: 10),
+            Text(
+              "AI機能",
+              style: Theme.of(context).textTheme.titleMedium, // タイトルのスタイル
+            ),
+            const SizedBox(height: 10),
+            Row(spacing: 10, children: [
               ElevatedButton.icon(
                 icon: Icon(Icons.lightbulb),
                 label: Text(AppLocalizations.of(context)!.adviceButton),

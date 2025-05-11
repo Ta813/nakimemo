@@ -335,19 +335,20 @@ class _InputScreenState extends State<InputScreen> {
     final todayLogs = List<String>.from(data[todayKey] ?? []);
 
     if (index >= 0 && index < todayLogs.length) {
-      final log = todayLogs[index];
-      final updatedLog = '$log [メモ: $memo]'; // メモをログに追加
-      todayLogs[index] = updatedLog;
-
-      data[todayKey] = todayLogs;
-      await prefs.setString('cry_logs', json.encode(data));
-
       // リストを降順にソート
       todayLogs.sort((a, b) {
         final timeA = a.split(' ').first;
         final timeB = b.split(' ').first;
         return timeB.compareTo(timeA); // 昇順
       });
+
+      final log = todayLogs[index];
+      final sanitizedMemo = memo.replaceAll('\n', ' '); // 改行をスペースに置き換え
+      final updatedLog = '$log [メモ: $sanitizedMemo]'; // メモをログに追加
+      todayLogs[index] = updatedLog;
+
+      data[todayKey] = todayLogs;
+      await prefs.setString('cry_logs', json.encode(data));
 
       setState(() {
         _logs = todayLogs;
