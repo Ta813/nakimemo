@@ -95,8 +95,6 @@ class _HomePageState extends State<HomePage> {
     SettingsScreen(), // 設定画面
   ];
 
-  final List<String> _titles = ['', '', '', '']; // 各画面のタイトル
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
