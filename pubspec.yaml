@@ -30,7 +30,6 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-  - lib/assets/baby_bg.png
   - .env
 
 flutter_icons:
