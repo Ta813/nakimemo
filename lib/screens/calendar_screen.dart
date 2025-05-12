@@ -44,6 +44,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
 
+  Set<int> _hoveredIndexes = {}; // カーソルが当たっている行のインデックスを追跡
+
   @override
   void initState() {
     super.initState();
@@ -117,6 +119,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // リストから即座に削除
     setState(() {
       events.removeAt(index);
+      _hoveredIndexes.remove(index); // ホバー状態を解除
     });
 
     if (events.isEmpty) {
@@ -161,6 +164,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // カテゴリに応じたアイコンを返す
   Widget _itemBuilder(int index) {
     final log = _getEventsForDay(_selectedDay!)[index];
+    final isHovered = _hoveredIndexes.contains(index); // カーソルが当たっているかを判定
+    final themeColor = Theme.of(context).colorScheme.primary; // 現在のテーマの色を取得
+
     return Dismissible(
       key: Key(log),
       background: Container(color: Colors.red),
@@ -170,87 +176,93 @@ class _CalendarScreenState extends State<CalendarScreen> {
           SnackBar(content: Text('$log を削除しました')),
         );
       },
-      child: ListTile(
-        leading: Icon(
-          _getCategoryIcon(log),
-          color: _getCategoryColor(log),
-        ),
-        title: Text(log),
-        trailing: IconButton(
-          icon: Icon(Icons.note_add),
-          tooltip: 'メモを追加',
-          onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
-        ),
-        onTap: () async {
-          final log = _getEventsForDay(_selectedDay!)[index];
-          final timeStr = log.split(' ').first;
-          final categoryPart = log.split(' ')[1];
+      child: Container(
+        color: isHovered
+            ? themeColor.withOpacity(0.3)
+            : Colors.transparent, // 新規行にテーマ色を適用
+        child: ListTile(
+          leading: Icon(
+            _getCategoryIcon(log),
+            color: _getCategoryColor(log),
+          ),
+          title: Text(log),
+          trailing: IconButton(
+            icon: Icon(Icons.note_add),
+            tooltip: 'メモを追加',
+            onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
+          ),
+          onTap: () async {
+            final log = _getEventsForDay(_selectedDay!)[index];
+            final timeStr = log.split(' ').first;
+            final categoryPart = log.split(' ')[1];
 
-          String? tempSelectedCategory = categoryPart;
+            String? tempSelectedCategory = categoryPart;
 
-          final newLog = await showDialog<String>(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text(AppLocalizations.of(context)!.edit_category_title),
-                content: StatefulBuilder(
-                  builder: (context, setState) {
-                    return DropdownButtonFormField<String>(
-                      value: tempSelectedCategory,
-                      items: _categories.map((cat) {
-                        return DropdownMenuItem<String>(
-                          value: cat['label'],
-                          child: Text(cat['label']),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          tempSelectedCategory = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText:
-                            AppLocalizations.of(context)!.edit_category_label,
-                        border: OutlineInputBorder(),
-                      ),
-                    );
-                  },
-                ),
-                actions: [
-                  TextButton(
-                    child: Text(AppLocalizations.of(context)!.cancel_button),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  TextButton(
-                    child: Text(AppLocalizations.of(context)!.save_button),
-                    onPressed: () {
-                      if (tempSelectedCategory != null) {
-                        Navigator.pop(
-                            context, '$timeStr $tempSelectedCategory');
-                      }
+            final newLog = await showDialog<String>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title:
+                      Text(AppLocalizations.of(context)!.edit_category_title),
+                  content: StatefulBuilder(
+                    builder: (context, setState) {
+                      return DropdownButtonFormField<String>(
+                        value: tempSelectedCategory,
+                        items: _categories.map((cat) {
+                          return DropdownMenuItem<String>(
+                            value: cat['label'],
+                            child: Text(cat['label']),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            tempSelectedCategory = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText:
+                              AppLocalizations.of(context)!.edit_category_label,
+                          border: OutlineInputBorder(),
+                        ),
+                      );
                     },
                   ),
-                ],
-              );
-            },
-          );
+                  actions: [
+                    TextButton(
+                      child: Text(AppLocalizations.of(context)!.cancel_button),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: Text(AppLocalizations.of(context)!.save_button),
+                      onPressed: () {
+                        if (tempSelectedCategory != null) {
+                          Navigator.pop(
+                              context, '$timeStr $tempSelectedCategory');
+                        }
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
 
-          if (newLog != null && newLog.trim().isNotEmpty) {
-            final prefs = await SharedPreferences.getInstance();
-            final rawData = prefs.getString('cry_logs') ?? '{}';
-            final data = Map<String, dynamic>.from(json.decode(rawData));
-            final key = _formatDate(_selectedDay!);
-            final dayLogs = List<String>.from(data[key] ?? []);
-            dayLogs[index] = newLog;
-            data[key] = dayLogs;
-            await prefs.setString('cry_logs', json.encode(data));
-            setState(() {
-              _eventMap = data.map(
-                (k, v) => MapEntry(k, List<String>.from(v)),
-              );
-            });
-          }
-        },
+            if (newLog != null && newLog.trim().isNotEmpty) {
+              final prefs = await SharedPreferences.getInstance();
+              final rawData = prefs.getString('cry_logs') ?? '{}';
+              final data = Map<String, dynamic>.from(json.decode(rawData));
+              final key = _formatDate(_selectedDay!);
+              final dayLogs = List<String>.from(data[key] ?? []);
+              dayLogs[index] = newLog;
+              data[key] = dayLogs;
+              await prefs.setString('cry_logs', json.encode(data));
+              setState(() {
+                _eventMap = data.map(
+                  (k, v) => MapEntry(k, List<String>.from(v)),
+                );
+              });
+            }
+          },
+        ),
       ),
     );
   }
@@ -352,10 +364,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     await prefs.setString('cry_logs', json.encode(data));
 
+    // 時間の昇順でソート
+    dayLogs.sort((a, b) {
+      final timeA = a.split(' ').first; // "HH:mm" 部分を取得
+      final timeB = b.split(' ').first;
+      return timeA.compareTo(timeB); // 時間を文字列として比較
+    });
+
     setState(() {
       _eventMap = data.map(
         (k, v) => MapEntry(k, List<String>.from(v)),
       );
+      _hoveredIndexes.add(dayLogs.indexOf(log)); // 新規追加された行を追跡
+    });
+
+    // 一定時間後にホバー状態を解除
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _hoveredIndexes.remove(dayLogs.indexOf(log));
+      });
     });
   }
 

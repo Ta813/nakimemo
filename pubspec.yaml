@@ -36,3 +36,5 @@ flutter_icons:
   android: true
   ios : false
   image_path: "lib/assets/nakimemo.png"
+  adaptive_icon_background: "#FFFFFF" # 背景色
+  adaptive_icon_foreground: "lib/assets/nakimemo.png" # 前景画像
