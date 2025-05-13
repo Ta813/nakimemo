@@ -3,8 +3,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:nakimemo/setting/layout_provider.dart';
-import 'package:nakimemo/setting/layout_type.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -45,6 +43,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime? _selectedDay;
 
   Set<int> _hoveredIndexes = {}; // カーソルが当たっている行のインデックスを追跡
+
+  final ScrollController _scrollController =
+      ScrollController(); // スクロールコントローラーを追加
 
   @override
   void initState() {
@@ -378,6 +379,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _hoveredIndexes.add(dayLogs.indexOf(log)); // 新規追加された行を追跡
     });
 
+    // 新しく追加された行にスクロール
+    final newIndex = dayLogs.indexOf(log);
+    Future.delayed(Duration(milliseconds: 100), () {
+      _scrollController.animateTo(
+        newIndex * 60.0, // 各行の高さ（例: 60.0）に基づいて計算
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+
     // 一定時間後にホバー状態を解除
     Future.delayed(Duration(seconds: 2), () {
       setState(() {
@@ -469,9 +480,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final layoutProvider = Provider.of<LayoutProvider>(context);
-    final isGrid = layoutProvider.layoutType == LayoutType.grid;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.calendar_title),
@@ -525,27 +533,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ],
           ),
           Expanded(
-            child: isGrid
-                ? GridView.builder(
-                    itemCount: _getEventsForDay(_selectedDay!).length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // グリッドの列数
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 2.5, // アイテムのアスペクト比
-                    ),
-                    itemBuilder: (context, index) {
-                      return _itemBuilder(index);
-                    })
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 0.0), // リスト全体の上下余白を削除
-                    itemCount: _getEventsForDay(_selectedDay!).length,
-                    itemBuilder: (context, index) {
-                      return _itemBuilder(index);
-                    },
-                  ),
+            child: ListView.builder(
+              controller: _scrollController, // スクロールコントローラーを設定
+              padding:
+                  const EdgeInsets.symmetric(vertical: 0.0), // リスト全体の上下余白を削除
+              itemCount: _getEventsForDay(_selectedDay!).length,
+              itemBuilder: (context, index) {
+                return _itemBuilder(index);
+              },
+            ),
           ),
         ],
       ),

@@ -2,8 +2,6 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:nakimemo/setting/layout_provider.dart';
-import 'package:nakimemo/setting/layout_type.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // 時刻整形に使用
@@ -394,9 +392,6 @@ class _InputScreenState extends State<InputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final layoutProvider = Provider.of<LayoutProvider>(context);
-    final isGrid = layoutProvider.layoutType == LayoutType.grid;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.input_title),
@@ -450,26 +445,12 @@ class _InputScreenState extends State<InputScreen> {
           ),
           const Divider(),
           Expanded(
-            child: isGrid
-                ? GridView.builder(
-                    itemCount: _logs.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // グリッドの列数
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 2.5,
-                    ),
-                    itemBuilder: (context, index) {
-                      return _itemBuilder(index);
-                    },
-                  )
-                : ListView.builder(
-                    itemCount: _logs.length,
-                    itemBuilder: (context, index) {
-                      return _itemBuilder(index);
-                    },
-                  ),
+            child: ListView.builder(
+              itemCount: _logs.length,
+              itemBuilder: (context, index) {
+                return _itemBuilder(index);
+              },
+            ),
           ),
         ],
       ),

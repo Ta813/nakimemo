@@ -11,7 +11,6 @@ import 'setting/locale_provider.dart';
 import 'setting/theme_provider.dart';
 import 'screens/settings_screen.dart'; // 設定画面
 import 'setting/app_themes.dart';
-import 'setting/layout_provider.dart';
 
 Future<void> main() async {
   try {
@@ -24,7 +23,6 @@ Future<void> main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (_) => LayoutProvider()),
         ],
         child: MyApp(),
       ),

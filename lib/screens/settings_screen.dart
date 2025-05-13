@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nakimemo/setting/layout_provider.dart';
-import 'package:nakimemo/setting/layout_type.dart';
 import 'package:provider/provider.dart';
 import '../setting/locale_provider.dart'; // 自作したロケールクラス
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -16,9 +14,6 @@ class SettingsScreen extends StatelessWidget {
 
     final themeProvider = Provider.of<ThemeProvider>(context);
     final currentTheme = themeProvider.theme;
-
-    final layoutProvider = Provider.of<LayoutProvider>(context);
-    final currentLayout = layoutProvider.layoutType;
 
     return Scaffold(
       appBar: AppBar(
@@ -65,24 +60,6 @@ class SettingsScreen extends StatelessWidget {
                 );
               }).toList(),
             ),
-            SizedBox(height: 10),
-            Text(AppLocalizations.of(context)!.layout,
-                style: Theme.of(context).textTheme.titleMedium),
-            SizedBox(height: 10),
-            DropdownButton<LayoutType>(
-              value: currentLayout,
-              onChanged: (LayoutType? newLayout) {
-                if (newLayout != null) {
-                  layoutProvider.setLayoutType(newLayout);
-                }
-              },
-              items: LayoutType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(_getLayoutLabel(type)),
-                );
-              }).toList(),
-            ),
           ],
         ),
       ),
@@ -112,17 +89,6 @@ class SettingsScreen extends StatelessWidget {
         return '💜 ラベンダー';
       default:
         return theme.toString();
-    }
-  }
-
-  String _getLayoutLabel(LayoutType type) {
-    switch (type) {
-      case LayoutType.list:
-        return '📋 リスト表示';
-      case LayoutType.grid:
-        return '🔲 グリッド表示';
-      default:
-        return type.toString();
     }
   }
 }
