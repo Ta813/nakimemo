@@ -3,7 +3,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,15 +21,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       'icon': FontAwesomeIcons.prescriptionBottle,
       'color': Colors.lightBlue
     },
-    {'label': 'おむつ', 'icon': FontAwesomeIcons.poo, 'color': Colors.brown},
+    {
+      'label': 'おむつ',
+      'icon': FontAwesomeIcons.toilet,
+      'color': Color(0xFFF5F5DC)
+    },
     {'label': '眠い', 'icon': FontAwesomeIcons.moon, 'color': Colors.amber},
     {'label': '抱っこ', 'icon': FontAwesomeIcons.child, 'color': Colors.grey},
-    {'label': '騒音', 'icon': FontAwesomeIcons.volumeUp, 'color': Colors.orange},
-    {
-      'label': '気温',
-      'icon': FontAwesomeIcons.thermometerHalf,
-      'color': Colors.green
-    },
+    {'label': '不快', 'icon': FontAwesomeIcons.angry, 'color': Colors.orange},
     {
       'label': '体調不良',
       'icon': FontAwesomeIcons.headSideCough,
@@ -90,11 +88,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
-    if (log.contains('おむつ')) return FontAwesomeIcons.poo;
+    if (log.contains('おむつ')) return FontAwesomeIcons.toilet;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
     if (log.contains('抱っこ')) return FontAwesomeIcons.child;
-    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
-    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('不快')) return FontAwesomeIcons.angry;
     if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
@@ -102,11 +99,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
-    if (log.contains('おむつ')) return Colors.brown;
+    if (log.contains('おむつ')) return Colors.lightGreen;
     if (log.contains('眠い')) return Colors.amber;
     if (log.contains('抱っこ')) return Colors.grey;
-    if (log.contains('騒音')) return Colors.orange;
-    if (log.contains('気温')) return Colors.green;
+    if (log.contains('不快')) return Colors.orange;
     if (log.contains('体調不良')) return Colors.red;
     return Colors.black45;
   }
@@ -293,8 +289,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       'おむつ',
                       '眠い',
                       '抱っこ',
-                      '騒音',
-                      '気温',
+                      '不快',
                       '体調不良',
                     ].map((label) {
                       return DropdownMenuItem<String>(

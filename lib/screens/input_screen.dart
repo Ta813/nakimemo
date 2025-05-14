@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // 時刻整形に使用
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -24,15 +23,14 @@ class _InputScreenState extends State<InputScreen> {
       'icon': FontAwesomeIcons.prescriptionBottle,
       'color': Colors.lightBlue
     },
-    {'label': 'おむつ', 'icon': FontAwesomeIcons.poo, 'color': Colors.brown},
+    {
+      'label': 'おむつ',
+      'icon': FontAwesomeIcons.toilet,
+      'color': Colors.lightGreen
+    },
     {'label': '眠い', 'icon': FontAwesomeIcons.moon, 'color': Colors.amber},
     {'label': '抱っこ', 'icon': FontAwesomeIcons.child, 'color': Colors.grey},
-    {'label': '騒音', 'icon': FontAwesomeIcons.volumeUp, 'color': Colors.orange},
-    {
-      'label': '気温',
-      'icon': FontAwesomeIcons.thermometerHalf,
-      'color': Colors.green
-    },
+    {'label': '不快', 'icon': FontAwesomeIcons.angry, 'color': Colors.orange},
     {
       'label': '体調不良',
       'icon': FontAwesomeIcons.headSideCough,
@@ -154,11 +152,10 @@ class _InputScreenState extends State<InputScreen> {
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
-    if (log.contains('おむつ')) return FontAwesomeIcons.poo;
+    if (log.contains('おむつ')) return FontAwesomeIcons.toilet;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
     if (log.contains('抱っこ')) return FontAwesomeIcons.child;
-    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
-    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('不快')) return FontAwesomeIcons.angry;
     if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
@@ -166,11 +163,10 @@ class _InputScreenState extends State<InputScreen> {
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
-    if (log.contains('おむつ')) return Colors.brown;
+    if (log.contains('おむつ')) return Colors.lightGreen;
     if (log.contains('眠い')) return Colors.amber;
     if (log.contains('抱っこ')) return Colors.grey;
-    if (log.contains('騒音')) return Colors.orange;
-    if (log.contains('気温')) return Colors.green;
+    if (log.contains('不快')) return Colors.orange;
     if (log.contains('体調不良')) return Colors.red;
     return Colors.black45;
   }
@@ -217,88 +213,60 @@ class _InputScreenState extends State<InputScreen> {
           await prefs.setString('cry_logs', json.encode(data));
         }
       },
-      child: Container(
-        color: isNew
-            ? themeColor.withOpacity(0.3)
-            : Colors.transparent, // 新規行にテーマ色を適用
-        child: ListTile(
-          leading: Icon(
-            _getCategoryIcon(log),
-            color: _getCategoryColor(log),
-          ),
-          title: Text(log),
-          trailing: IconButton(
-            icon: Icon(Icons.note_add),
-            onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
-          ),
-          onTap: () async {
-            final timePart = log.split(' ').first;
-            final categoryPart = log.split(' ')[1];
-
-            String? tempSelectedCategory = categoryPart;
-
-            final newCategory = await showDialog<String>(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title:
-                      Text(AppLocalizations.of(context)!.edit_category_title),
-                  content: StatefulBuilder(
-                    builder: (context, setState) {
-                      return DropdownButtonFormField<String>(
-                        value: tempSelectedCategory,
-                        items: _categories.map((cat) {
-                          return DropdownMenuItem<String>(
-                            value: cat['label'],
-                            child: Text(cat['label']),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            tempSelectedCategory = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText:
-                              AppLocalizations.of(context)!.edit_category_label,
-                          border: OutlineInputBorder(),
-                        ),
-                      );
-                    },
-                  ),
-                  actions: [
-                    TextButton(
-                      child: Text(AppLocalizations.of(context)!.cancel_button),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: Text(AppLocalizations.of(context)!.save_button),
-                      onPressed: () {
-                        if (tempSelectedCategory != null) {
-                          Navigator.pop(
-                              context, '$timePart $tempSelectedCategory');
-                        }
+      child: GestureDetector(
+        onTap: () async {
+          String? selectedCategory = await showDialog<String>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('カテゴリを選択'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _categories.map((cat) {
+                    return ListTile(
+                      leading: Icon(cat['icon'], color: cat['color']),
+                      title: Text(cat['label']),
+                      onTap: () {
+                        Navigator.pop(context, cat['label']);
                       },
-                    ),
-                  ],
-                );
-              },
-            );
+                    );
+                  }).toList(),
+                ),
+              );
+            },
+          );
 
-            if (newCategory != null && newCategory.trim().isNotEmpty) {
-              final prefs = await SharedPreferences.getInstance();
-              final raw = prefs.getString('cry_logs') ?? '{}';
-              final data = Map<String, dynamic>.from(json.decode(raw));
-              final todayKey = _getTodayKey();
-              final todayLogs = List<String>.from(data[todayKey] ?? []);
-              todayLogs[index] = newCategory;
-              data[todayKey] = todayLogs;
-              await prefs.setString('cry_logs', json.encode(data));
-              setState(() {
-                _logs = todayLogs;
-              });
-            }
-          },
+          if (selectedCategory != null) {
+            final timeStr = log.split(" ")[0]; // 時刻部分を取得
+            final updatedLog = '$timeStr $selectedCategory';
+            final prefs = await SharedPreferences.getInstance();
+            final raw = prefs.getString('cry_logs') ?? '{}';
+            final data = Map<String, dynamic>.from(json.decode(raw));
+            final todayKey = _getTodayKey();
+            final todayLogs = List<String>.from(data[todayKey] ?? []);
+            todayLogs[index] = updatedLog;
+            data[todayKey] = todayLogs;
+            await prefs.setString('cry_logs', json.encode(data));
+            setState(() {
+              _logs = todayLogs;
+            });
+          }
+        },
+        child: Container(
+          color: isNew
+              ? themeColor.withOpacity(0.3)
+              : Colors.transparent, // 新規行にテーマ色を適用
+          child: ListTile(
+            leading: Icon(
+              _getCategoryIcon(log),
+              color: _getCategoryColor(log),
+            ),
+            title: Text(log),
+            trailing: IconButton(
+              icon: Icon(Icons.note_add),
+              onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
+            ),
+          ),
         ),
       ),
     );
@@ -411,37 +379,22 @@ class _InputScreenState extends State<InputScreen> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          Wrap(
-            spacing: 20,
-            runSpacing: 20, // これで縦方向に段を分ける
-            children: _categories.map((cat) {
-              return SizedBox(
-                width: MediaQuery.of(context).size.width / 2 - 20, // 幅を調整して2列に
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: cat['color'], // 背景色
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40), // ボタンを丸くする
-                    ),
-                    elevation: 5, // 影を追加
-                  ),
-                  onPressed: () => _addLog(cat['label']),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(cat['icon'],
-                          color: Colors.white, size: 20), // アイコンを大きく
-                      const SizedBox(height: 5),
-                      Text(
-                        cat['label'],
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+              elevation: 5,
+            ),
+            onPressed: () => _addLog('泣いた！'),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Text(
+                '泣いた！',
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
           ),
           const Divider(),
           Expanded(

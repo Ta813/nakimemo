@@ -92,10 +92,8 @@ class _StatsScreenState extends State<StatsScreen> {
             counts['眠い'] = (counts['眠い'] ?? 0) + 1;
           } else if (log.contains('抱っこ')) {
             counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-          } else if (log.contains('騒音')) {
-            counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-          } else if (log.contains('気温')) {
-            counts['気温'] = (counts['気温'] ?? 0) + 1;
+          } else if (log.contains('不快')) {
+            counts['不快'] = (counts['不快'] ?? 0) + 1;
           } else if (log.contains('体調不良')) {
             counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
           }
@@ -145,10 +143,8 @@ class _StatsScreenState extends State<StatsScreen> {
           counts['眠い'] = (counts['眠い'] ?? 0) + 1;
         } else if (log.contains('抱っこ')) {
           counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-        } else if (log.contains('騒音')) {
-          counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-        } else if (log.contains('気温')) {
-          counts['気温'] = (counts['気温'] ?? 0) + 1;
+        } else if (log.contains('不快')) {
+          counts['不快'] = (counts['不快'] ?? 0) + 1;
         } else if (log.contains('体調不良')) {
           counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
         }
@@ -183,10 +179,8 @@ class _StatsScreenState extends State<StatsScreen> {
             counts['眠い'] = (counts['眠い'] ?? 0) + 1;
           } else if (log.contains('抱っこ')) {
             counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-          } else if (log.contains('騒音')) {
-            counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-          } else if (log.contains('気温')) {
-            counts['気温'] = (counts['気温'] ?? 0) + 1;
+          } else if (log.contains('不快')) {
+            counts['不快'] = (counts['不快'] ?? 0) + 1;
           } else if (log.contains('体調不良')) {
             counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
           }
@@ -219,10 +213,8 @@ class _StatsScreenState extends State<StatsScreen> {
           counts['眠い'] = (counts['眠い'] ?? 0) + 1;
         } else if (log.contains('抱っこ')) {
           counts['抱っこ'] = (counts['抱っこ'] ?? 0) + 1;
-        } else if (log.contains('騒音')) {
-          counts['騒音'] = (counts['騒音'] ?? 0) + 1;
-        } else if (log.contains('気温')) {
-          counts['気温'] = (counts['気温'] ?? 0) + 1;
+        } else if (log.contains('不快')) {
+          counts['不快'] = (counts['不快'] ?? 0) + 1;
         } else if (log.contains('体調不良')) {
           counts['体調不良'] = (counts['体調不良'] ?? 0) + 1;
         }
@@ -238,11 +230,10 @@ class _StatsScreenState extends State<StatsScreen> {
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
-    if (log.contains('おむつ')) return FontAwesomeIcons.poo;
+    if (log.contains('おむつ')) return FontAwesomeIcons.toilet;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
     if (log.contains('抱っこ')) return FontAwesomeIcons.child;
-    if (log.contains('騒音')) return FontAwesomeIcons.volumeUp;
-    if (log.contains('気温')) return FontAwesomeIcons.thermometerHalf;
+    if (log.contains('不快')) return FontAwesomeIcons.angry;
     if (log.contains('体調不良')) return FontAwesomeIcons.headSideCough;
     return Icons.help_outline;
   }
@@ -250,11 +241,10 @@ class _StatsScreenState extends State<StatsScreen> {
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
     if (log.contains('ミルク')) return Colors.lightBlue;
-    if (log.contains('おむつ')) return Colors.brown;
+    if (log.contains('おむつ')) return Colors.lightGreen;
     if (log.contains('眠い')) return Colors.amber;
     if (log.contains('抱っこ')) return Colors.grey;
-    if (log.contains('騒音')) return Colors.orange;
-    if (log.contains('気温')) return Colors.green;
+    if (log.contains('不快')) return Colors.orange;
     if (log.contains('体調不良')) return Colors.red;
     return Colors.black45;
   }
@@ -287,10 +277,8 @@ class _StatsScreenState extends State<StatsScreen> {
           category = '眠い';
         else if (logCategory.contains('抱っこ'))
           category = '抱っこ';
-        else if (logCategory.contains('騒音'))
-          category = '騒音';
-        else if (logCategory.contains('気温'))
-          category = '気温';
+        else if (logCategory.contains('不快'))
+          category = '不快';
         else if (logCategory.contains('体調不良')) category = '体調不良';
 
         if (category != null) {
