@@ -1,4 +1,10 @@
-﻿import 'package:flutter/material.dart';
+﻿// ignore_for_file: deprecated_member_use
+
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/input_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/stats_screen.dart'; // 統計画面
@@ -11,6 +17,7 @@ import 'setting/locale_provider.dart';
 import 'setting/theme_provider.dart';
 import 'screens/settings_screen.dart'; // 設定画面
 import 'setting/app_themes.dart';
+import 'package:home_widget/home_widget.dart';
 
 Future<void> main() async {
   try {
@@ -18,6 +25,7 @@ Future<void> main() async {
     if (!kIsWeb) {
       await dotenv.load();
     }
+    HomeWidget.registerInteractivityCallback(interactiveCallback);
     runApp(
       MultiProvider(
         providers: [
@@ -29,6 +37,34 @@ Future<void> main() async {
     );
   } catch (e) {
     print('Error loading environment variables: $e');
+  }
+}
+
+// 今日の日付をキーにしたログの取得
+// 形式: YYYY-MM-DD
+// 例: 2023-10-01
+String _getTodayKey() {
+  final now = DateTime.now();
+  return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+}
+
+@pragma('vm:entry-point')
+void interactiveCallback(dynamic uri) async {
+  if (uri?.host == 'cry') {
+    // ここで「泣いた！」の処理を実装
+    final now = DateTime.now();
+    final timeStr = DateFormat('HH:mm:ss').format(now);
+    final entry = '$timeStr 泣いた！';
+
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('cry_logs') ?? '{}';
+    final data = Map<String, dynamic>.from(json.decode(raw));
+    final todayKey = _getTodayKey();
+    final todayLogs = List<String>.from(data[todayKey] ?? []);
+    todayLogs.add(entry);
+
+    data[todayKey] = todayLogs;
+    await prefs.setString('cry_logs', json.encode(data));
   }
 }
 

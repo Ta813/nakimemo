@@ -55,7 +55,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // SharedPreferencesからイベントを読み込む
   Future<void> _loadEvents() async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final rawData = prefs.getString('cry_logs') ?? '{}';
     setState(() {
       _eventMap = Map<String, List<String>>.from(
@@ -109,7 +111,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // イベントを削除する
   Future<void> _removeEvent(int index) async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final key = _formatDate(_selectedDay!);
     final events = List<String>.from(_eventMap[key]!);
 
@@ -244,7 +248,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             );
 
             if (newLog != null && newLog.trim().isNotEmpty) {
+              await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
               final prefs = await SharedPreferences.getInstance();
+              await prefs.reload();
               final rawData = prefs.getString('cry_logs') ?? '{}';
               final data = Map<String, dynamic>.from(json.decode(rawData));
               final key = _formatDate(_selectedDay!);
@@ -349,7 +355,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // 選択された日にログを追加
   Future<void> _addLogToSelectedDate(String log, DateTime date) async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final rawData = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(rawData));
 
@@ -445,7 +453,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // メモを保存する
   Future<void> _saveMemo(int index, String memo) async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final rawData = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(rawData));
     final key = _formatDate(_selectedDay!);

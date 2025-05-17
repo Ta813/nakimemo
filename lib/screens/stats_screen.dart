@@ -64,7 +64,9 @@ class _StatsScreenState extends State<StatsScreen> {
   /// ログを全て読み込む
   /// [key] : YYYY-MM形式の文字列
   Future<Map<String, List<String>>> _loadAllLogs() async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final rawData = prefs.getString('cry_logs') ?? '{}';
     final Map<String, dynamic> jsonData = json.decode(rawData);
     return jsonData

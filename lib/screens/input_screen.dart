@@ -55,7 +55,9 @@ class _InputScreenState extends State<InputScreen> {
   // 今日のログをSharedPreferencesから取得
   // 取得したログは降順にソートして表示
   Future<void> _loadTodayLogs() async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final raw = prefs.getString('cry_logs') ?? '{}';
     final data = json.decode(raw) as Map<String, dynamic>;
     final todayKey = _getTodayKey();
@@ -79,7 +81,9 @@ class _InputScreenState extends State<InputScreen> {
     final timeStr = DateFormat('HH:mm:ss').format(now);
     final entry = '$timeStr $category';
 
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final raw = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = _getTodayKey();
@@ -110,7 +114,9 @@ class _InputScreenState extends State<InputScreen> {
 
   // 今日のログを削除するメソッド
   Future<void> _clearTodayLogs() async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final raw = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = _getTodayKey();
@@ -194,7 +200,9 @@ class _InputScreenState extends State<InputScreen> {
         });
 
         // 永続ストレージからも削除
+        await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
         final prefs = await SharedPreferences.getInstance();
+        await prefs.reload();
         final raw = prefs.getString('cry_logs') ?? '{}';
         final data = Map<String, dynamic>.from(json.decode(raw));
         final todayKey = _getTodayKey();
@@ -239,7 +247,9 @@ class _InputScreenState extends State<InputScreen> {
           if (selectedCategory != null) {
             final timeStr = log.split(" ")[0]; // 時刻部分を取得
             final updatedLog = '$timeStr $selectedCategory';
+            await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
             final prefs = await SharedPreferences.getInstance();
+            await prefs.reload();
             final raw = prefs.getString('cry_logs') ?? '{}';
             final data = Map<String, dynamic>.from(json.decode(raw));
             final todayKey = _getTodayKey();
@@ -325,7 +335,9 @@ class _InputScreenState extends State<InputScreen> {
 
   // メモを保存するメソッド
   Future<void> _saveMemo(int index, String memo) async {
+    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final raw = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = _getTodayKey();
