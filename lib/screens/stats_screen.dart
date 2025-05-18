@@ -86,7 +86,9 @@ class _StatsScreenState extends State<StatsScreen> {
     for (final entry in allLogs.entries) {
       if (entry.key.startsWith(targetMonth)) {
         for (final log in entry.value) {
-          if (log.contains('ミルク')) {
+          if (log.contains('泣いた！')) {
+            counts['泣いた！'] = (counts['泣いた！'] ?? 0) + 1;
+          } else if (log.contains('ミルク')) {
             counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
           } else if (log.contains('おむつ')) {
             counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
@@ -137,7 +139,9 @@ class _StatsScreenState extends State<StatsScreen> {
       }
 
       for (final log in entry.value) {
-        if (log.contains('ミルク')) {
+        if (log.contains('泣いた！')) {
+          counts['泣いた！'] = (counts['泣いた！'] ?? 0) + 1;
+        } else if (log.contains('ミルク')) {
           counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
         } else if (log.contains('おむつ')) {
           counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
@@ -173,7 +177,9 @@ class _StatsScreenState extends State<StatsScreen> {
     for (final entry in allLogs.entries) {
       if (entry.key.startsWith(targetDay)) {
         for (final log in entry.value) {
-          if (log.contains('ミルク')) {
+          if (log.contains('泣いた！')) {
+            counts['泣いた！'] = (counts['泣いた！'] ?? 0) + 1;
+          } else if (log.contains('ミルク')) {
             counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
           } else if (log.contains('おむつ')) {
             counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
@@ -207,7 +213,9 @@ class _StatsScreenState extends State<StatsScreen> {
 
     for (final entry in allLogs.entries) {
       for (final log in entry.value) {
-        if (log.contains('ミルク')) {
+        if (log.contains('泣いた！')) {
+          counts['泣いた！'] = (counts['泣いた！'] ?? 0) + 1;
+        } else if (log.contains('ミルク')) {
           counts['ミルク'] = (counts['ミルク'] ?? 0) + 1;
         } else if (log.contains('おむつ')) {
           counts['おむつ'] = (counts['おむつ'] ?? 0) + 1;
@@ -231,6 +239,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
+    if (log.contains('泣いた！')) return FontAwesomeIcons.faceSadTear;
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
     if (log.contains('おむつ')) return FontAwesomeIcons.toilet;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
@@ -242,6 +251,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
+    if (log.contains('泣いた！')) return Colors.blueAccent;
     if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.lightGreen;
     if (log.contains('眠い')) return Colors.amber;
@@ -251,9 +261,9 @@ class _StatsScreenState extends State<StatsScreen> {
     return Colors.black45;
   }
 
-  /// カテゴリごとの時間帯別統計を取得する
-  Future<Map<String, Map<String, int>>> getCategoryHourlyStats() async {
-    final result = <String, Map<String, int>>{};
+  /// 時間帯別統計を取得する
+  Future<Map<String, int>> getHourlyStats() async {
+    final result = {'0-6H': 0, '6-12H': 0, '12-18H': 0, '18-24H': 0};
 
     for (final entry in selectedLogs.entries) {
       for (final log in entry.value) {
@@ -268,29 +278,9 @@ class _StatsScreenState extends State<StatsScreen> {
         } else {
           timeRange = '18-24H';
         }
-
-        String? category;
-        final logCategory = log.split(' ')[1];
-        if (logCategory.contains('ミルク'))
-          category = 'ミルク';
-        else if (logCategory.contains('おむつ'))
-          category = 'おむつ';
-        else if (logCategory.contains('眠い'))
-          category = '眠い';
-        else if (logCategory.contains('抱っこ'))
-          category = '抱っこ';
-        else if (logCategory.contains('不快'))
-          category = '不快';
-        else if (logCategory.contains('体調不良')) category = '体調不良';
-
-        if (category != null) {
-          result.putIfAbsent(category,
-              () => {'0-6H': 0, '6-12H': 0, '12-18H': 0, '18-24H': 0});
-          result[category]![timeRange] = result[category]![timeRange]! + 1;
-        }
+        result[timeRange] = result[timeRange]! + 1;
       }
     }
-
     return result;
   }
 
@@ -739,8 +729,8 @@ class _StatsScreenState extends State<StatsScreen> {
                           SizedBox(height: 20),
                           Text('時間帯ごとの泣く傾向',
                               style: Theme.of(context).textTheme.titleMedium),
-                          FutureBuilder<Map<String, Map<String, int>>>(
-                            future: getCategoryHourlyStats(),
+                          FutureBuilder<Map<String, int>>(
+                            future: getHourlyStats(),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) return SizedBox.shrink();
                               final data = snapshot.data!;
@@ -760,19 +750,19 @@ class _StatsScreenState extends State<StatsScreen> {
                                         timeRanges.asMap().entries.map((entry) {
                                       final timeIndex = entry.key;
                                       final timeLabel = entry.value;
+                                      final count = data[timeLabel] ?? 0;
 
                                       return BarChartGroupData(
                                         x: timeIndex,
-                                        barRods: data.entries.map((e) {
-                                          final count = e.value[timeLabel] ?? 0;
-                                          return BarChartRodData(
+                                        barRods: [
+                                          BarChartRodData(
                                             toY: count.toDouble(),
-                                            width: 10,
-                                            color: _getCategoryColor(e.key),
+                                            width: 20,
+                                            color: Colors.blueAccent,
                                             borderRadius:
                                                 BorderRadius.circular(0),
-                                          );
-                                        }).toList(),
+                                          ),
+                                        ],
                                         barsSpace: 4,
                                       );
                                     }).toList(),

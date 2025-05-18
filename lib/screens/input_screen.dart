@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // 時刻整形に使用
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class InputScreen extends StatefulWidget {
   @override
@@ -19,6 +20,11 @@ class _InputScreenState extends State<InputScreen> {
 
   // カテゴリの定義
   final List<Map<String, dynamic>> _categories = [
+    {
+      'label': '泣いた！',
+      'icon': FontAwesomeIcons.faceSadTear,
+      'color': Colors.blueAccent
+    },
     {
       'label': 'ミルク',
       'icon': FontAwesomeIcons.prescriptionBottle,
@@ -93,8 +99,10 @@ class _InputScreenState extends State<InputScreen> {
 
     data[todayKey] = todayLogs;
     await prefs.setString('cry_logs', json.encode(data));
-    await HomeWidget.saveWidgetData('last_cry_time', todayKey + ' ' + timeStr);
-
+    if (!kIsWeb) {
+      await HomeWidget.saveWidgetData(
+          'last_cry_time', todayKey + ' ' + timeStr);
+    }
     todayLogs.sort((a, b) {
       final timeA = a.split(' ').first;
       final timeB = b.split(' ').first;
@@ -108,6 +116,7 @@ class _InputScreenState extends State<InputScreen> {
 
     // 一定時間後に色をリセット
     Future.delayed(Duration(seconds: 2), () {
+      if (!mounted) return;
       setState(() {
         _newlyAddedIndexes.remove(0); // 色をリセット
       });
@@ -159,6 +168,7 @@ class _InputScreenState extends State<InputScreen> {
 
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
+    if (log.contains('泣いた！')) return FontAwesomeIcons.faceSadTear;
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
     if (log.contains('おむつ')) return FontAwesomeIcons.toilet;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
@@ -170,6 +180,7 @@ class _InputScreenState extends State<InputScreen> {
 
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
+    if (log.contains('泣いた！')) return Colors.blueAccent;
     if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.lightGreen;
     if (log.contains('眠い')) return Colors.amber;
@@ -257,6 +268,14 @@ class _InputScreenState extends State<InputScreen> {
             final todayKey = _getTodayKey();
             final todayLogs = List<String>.from(data[todayKey] ?? []);
             todayLogs[index] = updatedLog;
+
+            // リストを降順にソート
+            todayLogs.sort((a, b) {
+              final timeA = a.split(' ').first;
+              final timeB = b.split(' ').first;
+              return timeB.compareTo(timeA); // 降順
+            });
+
             data[todayKey] = todayLogs;
             await prefs.setString('cry_logs', json.encode(data));
             setState(() {

@@ -23,8 +23,8 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     if (!kIsWeb) {
       await dotenv.load();
+      HomeWidget.registerInteractivityCallback(interactiveCallback);
     }
-    HomeWidget.registerInteractivityCallback(interactiveCallback);
     runApp(
       MultiProvider(
         providers: [

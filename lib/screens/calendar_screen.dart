@@ -17,6 +17,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // カテゴリのリスト
   final List<Map<String, dynamic>> _categories = [
     {
+      'label': '泣いた！',
+      'icon': FontAwesomeIcons.faceSadTear,
+      'color': Colors.blueAccent
+    },
+    {
       'label': 'ミルク',
       'icon': FontAwesomeIcons.prescriptionBottle,
       'color': Colors.lightBlue
@@ -89,6 +94,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // カテゴリに応じたアイコンを返す
   IconData _getCategoryIcon(String log) {
+    if (log.contains('泣いた！')) return FontAwesomeIcons.faceSadTear;
     if (log.contains('ミルク')) return FontAwesomeIcons.prescriptionBottle;
     if (log.contains('おむつ')) return FontAwesomeIcons.toilet;
     if (log.contains('眠い')) return FontAwesomeIcons.moon;
@@ -100,6 +106,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // カテゴリに応じた色を返す
   Color _getCategoryColor(String log) {
+    if (log.contains('泣いた！')) return Colors.blueAccent;
     if (log.contains('ミルク')) return Colors.lightBlue;
     if (log.contains('おむつ')) return Colors.lightGreen;
     if (log.contains('眠い')) return Colors.amber;
@@ -291,6 +298,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       border: OutlineInputBorder(),
                     ),
                     items: [
+                      '泣いた！',
                       'ミルク',
                       'おむつ',
                       '眠い',
@@ -385,6 +393,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // 新しく追加された行にスクロール
     final newIndex = dayLogs.indexOf(log);
     Future.delayed(Duration(milliseconds: 100), () {
+      if (!mounted) return;
       _scrollController.animateTo(
         newIndex * 60.0, // 各行の高さ（例: 60.0）に基づいて計算
         duration: Duration(milliseconds: 300),
@@ -394,6 +403,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     // 一定時間後にホバー状態を解除
     Future.delayed(Duration(seconds: 2), () {
+      if (!mounted) return;
       setState(() {
         _hoveredIndexes.remove(dayLogs.indexOf(log));
       });
