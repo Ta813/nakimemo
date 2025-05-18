@@ -3,7 +3,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/input_screen.dart';
 import 'screens/calendar_screen.dart';
@@ -40,26 +39,20 @@ Future<void> main() async {
   }
 }
 
-// 今日の日付をキーにしたログの取得
-// 形式: YYYY-MM-DD
-// 例: 2023-10-01
-String _getTodayKey() {
-  final now = DateTime.now();
-  return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-}
-
 @pragma('vm:entry-point')
 void interactiveCallback(dynamic uri) async {
+  // ウィジェットからのコールバックを受け取る
+  print('main.dart interactiveCallback called: $uri');
   if (uri?.host == 'cry') {
     // ここで「泣いた！」の処理を実装
-    final now = DateTime.now();
-    final timeStr = DateFormat('HH:mm:ss').format(now);
+    final lastCryTime = uri?.queryParameters?['last_cry_time'];
+    final timeStr = lastCryTime.split(' ')[1];
     final entry = '$timeStr 泣いた！';
 
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(raw));
-    final todayKey = _getTodayKey();
+    final todayKey = lastCryTime.split(' ')[0];
     final todayLogs = List<String>.from(data[todayKey] ?? []);
     todayLogs.add(entry);
 

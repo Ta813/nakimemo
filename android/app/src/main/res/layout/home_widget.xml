@@ -6,12 +6,26 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <ImageButton
-        android:id="@+id/button_cry"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:contentDescription="泣いた！"
-        android:src="@android:drawable/ic_dialog_info"
-        android:background="@android:color/transparent" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
 
+        <ImageButton
+            android:id="@+id/button_cry"
+            android:layout_width="96dp"
+            android:layout_height="40dp"
+            android:contentDescription="泣いた！"
+            android:src="@drawable/cry"
+            android:background="@android:color/transparent" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_last_cry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="押してね！"
+        android:textSize="16sp"
+        android:textColor="#000000"/>
 </LinearLayout>

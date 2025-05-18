@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.nakimemo">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:label="nakimemo"
         android:name="${applicationName}"
@@ -36,6 +38,7 @@
         <receiver
             android:name=".MyHomeWidgetProvider"
             android:exported="true"
+            android:enabled="true"
             android:label="泣きメモウィジェット">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

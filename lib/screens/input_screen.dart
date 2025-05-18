@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // 時刻整形に使用
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -92,6 +93,7 @@ class _InputScreenState extends State<InputScreen> {
 
     data[todayKey] = todayLogs;
     await prefs.setString('cry_logs', json.encode(data));
+    await HomeWidget.saveWidgetData('last_cry_time', todayKey + ' ' + timeStr);
 
     todayLogs.sort((a, b) {
       final timeA = a.split(' ').first;
