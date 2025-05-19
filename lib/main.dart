@@ -49,7 +49,9 @@ void interactiveCallback(dynamic uri) async {
     final timeStr = lastCryTime.split(' ')[1];
     final entry = '$timeStr 泣いた！';
 
+    await SharedPreferences.getInstance();
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final raw = prefs.getString('cry_logs') ?? '{}';
     final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = lastCryTime.split(' ')[0];

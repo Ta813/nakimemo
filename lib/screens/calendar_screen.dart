@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -176,7 +177,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final themeColor = Theme.of(context).colorScheme.primary; // 現在のテーマの色を取得
 
     return Dismissible(
-      key: Key(log),
+      key: Key(log + index.toString()),
       background: Container(color: Colors.red),
       onDismissed: (direction) async {
         await _removeEvent(index);
@@ -193,77 +194,56 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _getCategoryIcon(log),
             color: _getCategoryColor(log),
           ),
-          title: Text(log),
+          title: Text(
+            log.replaceFirst(RegExp(r'\.\d{3}'), ''),
+          ),
           trailing: IconButton(
             icon: Icon(Icons.note_add),
             tooltip: 'メモを追加',
             onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
           ),
           onTap: () async {
-            final log = _getEventsForDay(_selectedDay!)[index];
-            final timeStr = log.split(' ').first;
-            final categoryPart = log.split(' ')[1];
-
-            String? tempSelectedCategory = categoryPart;
-
-            final newLog = await showDialog<String>(
+            String? selectedCategory = await showDialog<String>(
               context: context,
               builder: (context) {
                 return AlertDialog(
                   title:
                       Text(AppLocalizations.of(context)!.edit_category_title),
-                  content: StatefulBuilder(
-                    builder: (context, setState) {
-                      return DropdownButtonFormField<String>(
-                        value: tempSelectedCategory,
-                        items: _categories.map((cat) {
-                          return DropdownMenuItem<String>(
-                            value: cat['label'],
-                            child: Text(cat['label']),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            tempSelectedCategory = value;
-                          });
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _categories.map((cat) {
+                      return ListTile(
+                        leading: Icon(cat['icon'], color: cat['color']),
+                        title: Text(cat['label']),
+                        onTap: () {
+                          Navigator.pop(context, cat['label']);
                         },
-                        decoration: InputDecoration(
-                          labelText:
-                              AppLocalizations.of(context)!.edit_category_label,
-                          border: OutlineInputBorder(),
-                        ),
                       );
-                    },
+                    }).toList(),
                   ),
                   actions: [
                     TextButton(
                       child: Text(AppLocalizations.of(context)!.cancel_button),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    TextButton(
-                      child: Text(AppLocalizations.of(context)!.save_button),
-                      onPressed: () {
-                        if (tempSelectedCategory != null) {
-                          Navigator.pop(
-                              context, '$timeStr $tempSelectedCategory');
-                        }
-                      },
-                    ),
                   ],
                 );
               },
             );
 
-            if (newLog != null && newLog.trim().isNotEmpty) {
+            if (selectedCategory != null) {
+              final timeStr = log.split(" ")[0]; // 時刻部分を取得
+              final updatedLog = '$timeStr $selectedCategory';
               await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
               final prefs = await SharedPreferences.getInstance();
               await prefs.reload();
-              final rawData = prefs.getString('cry_logs') ?? '{}';
-              final data = Map<String, dynamic>.from(json.decode(rawData));
-              final key = _formatDate(_selectedDay!);
-              final dayLogs = List<String>.from(data[key] ?? []);
-              dayLogs[index] = newLog;
-              data[key] = dayLogs;
+              final raw = prefs.getString('cry_logs') ?? '{}';
+              final data = Map<String, dynamic>.from(json.decode(raw));
+              final selectedDay = _formatDate(_selectedDay!);
+              final selectedLogs = List<String>.from(data[selectedDay] ?? []);
+              selectedLogs[index] = updatedLog;
+
+              data[selectedDay] = selectedLogs;
               await prefs.setString('cry_logs', json.encode(data));
               setState(() {
                 _eventMap = data.map(
@@ -344,9 +324,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     if (selectedCategory != null && selectedTime != null) {
                       final now = DateTime.now();
                       final selectedDate = _selectedDay ?? now;
+                      final mSecond = DateFormat('SSS').format(now);
                       final formattedTime =
                           '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}';
-                      final log = '$formattedTime:00 $selectedCategory';
+                      final log =
+                          '$formattedTime:00.$mSecond $selectedCategory';
 
                       _addLogToSelectedDate(log, selectedDate);
                       Navigator.pop(context);

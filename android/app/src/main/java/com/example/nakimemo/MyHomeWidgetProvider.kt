@@ -24,10 +24,12 @@ class MyHomeWidgetProvider : HomeWidgetProvider() {
             
             if (intent.getStringExtra("uri") == "myapp://cry") {
                 // ボタンが押されたときの処理
-                val now = java.text.SimpleDateFormat("YYYY-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+                val now = java.text.SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS", java.util.Locale.getDefault()).format(java.util.Date())
+                val nowNoMillis = now.replace(Regex("\\.\\d{3}$"), "") // ミリ秒だけ削除
                 val views = RemoteViews(context.packageName, R.layout.home_widget)
                 Log.d("MyHomeWidgetProvider.onReceive", "lastCryTime: $now")
-                views.setTextViewText(R.id.text_last_cry, now)
+
+                views.setTextViewText(R.id.text_last_cry, nowNoMillis)
 
                 // SharedPreferencesに現在時刻を保存
                 val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)

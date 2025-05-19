@@ -85,7 +85,7 @@ class _InputScreenState extends State<InputScreen> {
   // 引数はカテゴリ名
   Future<void> _addLog(String category) async {
     final now = DateTime.now();
-    final timeStr = DateFormat('HH:mm:ss').format(now);
+    final timeStr = DateFormat('HH:mm:ss.SSS').format(now);
     final entry = '$timeStr $category';
 
     await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
@@ -233,6 +233,9 @@ class _InputScreenState extends State<InputScreen> {
           data[todayKey] = todayLogs;
           await prefs.setString('cry_logs', json.encode(data));
         }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$log を削除しました')),
+        );
       },
       child: GestureDetector(
         onTap: () async {
@@ -253,6 +256,12 @@ class _InputScreenState extends State<InputScreen> {
                     );
                   }).toList(),
                 ),
+                actions: [
+                  TextButton(
+                    child: Text(AppLocalizations.of(context)!.cancel_button),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               );
             },
           );
@@ -292,7 +301,9 @@ class _InputScreenState extends State<InputScreen> {
               _getCategoryIcon(log),
               color: _getCategoryColor(log),
             ),
-            title: Text(log),
+            title: Text(
+              log.replaceFirst(RegExp(r'\.\d{3}'), ''),
+            ),
             trailing: IconButton(
               icon: Icon(Icons.note_add),
               onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
