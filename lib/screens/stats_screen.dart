@@ -656,7 +656,6 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.stats_title),
         actions: [
           IconButton(
             icon: Icon(Icons.help_outline),

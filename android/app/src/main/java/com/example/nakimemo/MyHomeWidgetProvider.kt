@@ -69,10 +69,11 @@ class MyHomeWidgetProvider : HomeWidgetProvider() {
         // cry_logsの最新日時を取得
         val lastCryTime = widgetData.getString("last_cry_time", "") ?: ""
         val displayText = if (lastCryTime.isEmpty()) "ボタンを押してね！" else lastCryTime
+        val displayTextNoMillis = displayText.replace(Regex("\\.\\d{3}$"), "") // ミリ秒だけ削除
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.home_widget)
-            views.setTextViewText(R.id.text_last_cry, displayText)
+            views.setTextViewText(R.id.text_last_cry, displayTextNoMillis)
 
             // ボタンのクリックイベントを設定
             val intent = Intent(context, MyHomeWidgetProvider::class.java).apply {

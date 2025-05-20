@@ -406,7 +406,6 @@ class _InputScreenState extends State<InputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.input_title),
         actions: [
           IconButton(
             icon: Icon(Icons.help_outline),
@@ -423,6 +422,16 @@ class _InputScreenState extends State<InputScreen> {
       body: Column(
         children: [
           const SizedBox(height: 20),
+          // ここに説明文を追加
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Text(
+              '子どもが泣いた時に「泣いた！」ボタンを押してください。\n',
+              style: TextStyle(fontSize: 16, color: Colors.black87),
+              textAlign: TextAlign.center,
+            ),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -441,6 +450,16 @@ class _InputScreenState extends State<InputScreen> {
             ),
           ),
           const Divider(),
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Text(
+              '落ち着いたらタッチしてカテゴリを選んでください。\n'
+              '「泣いた！」のままでも大丈夫です。',
+              style: TextStyle(fontSize: 15, color: Colors.black87),
+              textAlign: TextAlign.center,
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: _logs.length,

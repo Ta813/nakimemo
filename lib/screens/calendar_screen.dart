@@ -479,7 +479,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.calendar_title),
         actions: [
           IconButton(
             icon: Icon(Icons.help_outline),
