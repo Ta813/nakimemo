@@ -292,20 +292,28 @@ class _InputScreenState extends State<InputScreen> {
           }
         },
         child: Container(
-          color: isNew
-              ? themeColor.withOpacity(0.3)
-              : Colors.transparent, // 新規行にテーマ色を適用
-          child: ListTile(
-            leading: Icon(
-              _getCategoryIcon(log),
-              color: _getCategoryColor(log),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+          child: Card(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            title: Text(
-              log.replaceFirst(RegExp(r'\.\d{3}'), ''),
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.note_add),
-              onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
+            color: isNew ? themeColor.withOpacity(0.15) : Colors.white,
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: Icon(
+                _getCategoryIcon(log),
+                color: _getCategoryColor(log),
+              ),
+              title: Text(
+                log.replaceFirst(RegExp(r'\.\d{3}'), ''),
+                style: TextStyle(fontSize: 16),
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.note_add),
+                onPressed: () => _showMemoDialog(index),
+              ),
             ),
           ),
         ),
