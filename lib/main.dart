@@ -17,6 +17,7 @@ import 'setting/theme_provider.dart';
 import 'screens/settings_screen.dart'; // 設定画面
 import 'setting/app_themes.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 Future<void> main() async {
   try {
@@ -24,6 +25,7 @@ Future<void> main() async {
     if (!kIsWeb) {
       await dotenv.load();
       HomeWidget.registerInteractivityCallback(interactiveCallback);
+      await MobileAds.instance.initialize();
     }
     runApp(
       MultiProvider(

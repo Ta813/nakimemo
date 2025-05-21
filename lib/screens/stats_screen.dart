@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class StatsScreen extends StatefulWidget {
   @override
@@ -26,10 +28,23 @@ class _StatsScreenState extends State<StatsScreen> {
   Map<String, int> categoryCounts = {};
   Map<String, List<String>> selectedLogs = {};
 
+  BannerAd? _bannerAd;
+
   @override
   void initState() {
     super.initState();
     _updateCategoryCounts();
+
+    if (!kIsWeb) {
+      // バナー広告の初期化
+      _bannerAd = BannerAd(
+        adUnitId:
+            'ca-app-pub-3940256099942544/6300978111', // ご自身のAdMobバナーIDに置き換えてください
+        size: AdSize.banner,
+        request: AdRequest(),
+        listener: BannerAdListener(),
+      )..load();
+    }
   }
 
   /// カテゴリ別の件数を更新する
@@ -657,6 +672,12 @@ class _StatsScreenState extends State<StatsScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          if (!kIsWeb && _bannerAd != null)
+            Container(
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            ),
           IconButton(
             icon: Icon(Icons.help_outline),
             onPressed: () {

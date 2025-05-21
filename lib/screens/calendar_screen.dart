@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -51,12 +53,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final ScrollController _scrollController =
       ScrollController(); // スクロールコントローラーを追加
 
+  BannerAd? _bannerAd;
+
   @override
   void initState() {
     super.initState();
     _focusedDay = DateTime.now();
     _selectedDay = _focusedDay;
     _loadEvents();
+
+    if (!kIsWeb) {
+      // バナー広告の初期化
+      _bannerAd = BannerAd(
+        adUnitId:
+            'ca-app-pub-3940256099942544/6300978111', // ご自身のAdMobバナーIDに置き換えてください
+        size: AdSize.banner,
+        request: AdRequest(),
+        listener: BannerAdListener(),
+      )..load();
+    }
   }
 
   // SharedPreferencesからイベントを読み込む
@@ -480,6 +495,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          if (!kIsWeb && _bannerAd != null)
+            Container(
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            ),
           IconButton(
             icon: Icon(Icons.help_outline),
             tooltip: AppLocalizations.of(context)!.help_tooltip,

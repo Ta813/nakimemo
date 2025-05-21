@@ -8,6 +8,7 @@ import 'package:intl/intl.dart'; // 時刻整形に使用
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class InputScreen extends StatefulWidget {
   @override
@@ -17,6 +18,8 @@ class InputScreen extends StatefulWidget {
 class _InputScreenState extends State<InputScreen> {
   List<String> _logs = [];
   Set<int> _newlyAddedIndexes = {}; // 新規追加された行のインデックスを追跡
+
+  BannerAd? _bannerAd;
 
   // カテゴリの定義
   final List<Map<String, dynamic>> _categories = [
@@ -49,6 +52,17 @@ class _InputScreenState extends State<InputScreen> {
   void initState() {
     super.initState();
     _loadTodayLogs();
+
+    if (!kIsWeb) {
+      // バナー広告の初期化
+      _bannerAd = BannerAd(
+        adUnitId:
+            'ca-app-pub-3940256099942544/6300978111', // ご自身のAdMobバナーIDに置き換えてください
+        size: AdSize.banner,
+        request: AdRequest(),
+        listener: BannerAdListener(),
+      )..load();
+    }
   }
 
   // 今日の日付をキーにしたログの取得
@@ -120,21 +134,6 @@ class _InputScreenState extends State<InputScreen> {
       setState(() {
         _newlyAddedIndexes.remove(0); // 色をリセット
       });
-    });
-  }
-
-  // 今日のログを削除するメソッド
-  Future<void> _clearTodayLogs() async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final raw = prefs.getString('cry_logs') ?? '{}';
-    final data = Map<String, dynamic>.from(json.decode(raw));
-    final todayKey = _getTodayKey();
-    data.remove(todayKey);
-    await prefs.setString('cry_logs', json.encode(data));
-    setState(() {
-      _logs = [];
     });
   }
 
@@ -407,15 +406,16 @@ class _InputScreenState extends State<InputScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          if (!kIsWeb && _bannerAd != null)
+            Container(
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            ),
           IconButton(
             icon: Icon(Icons.help_outline),
             tooltip: AppLocalizations.of(context)!.help_tooltip,
             onPressed: _showHelpDialog,
-          ),
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: _logs.isNotEmpty ? _clearTodayLogs : null,
-            tooltip: AppLocalizations.of(context)!.delete_today_tooltip,
           ),
         ],
       ),
@@ -454,7 +454,7 @@ class _InputScreenState extends State<InputScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
-              '落ち着いたらタッチしてカテゴリを選んでください。\n'
+              '落ち着いたらカテゴリを選んでください。\n'
               '「泣いた！」のままでも大丈夫です。',
               style: TextStyle(fontSize: 15, color: Colors.black87),
               textAlign: TextAlign.center,
