@@ -201,72 +201,80 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
       },
       child: Container(
-        color: isHovered
-            ? themeColor.withOpacity(0.3)
-            : Colors.transparent, // 新規行にテーマ色を適用
-        child: ListTile(
-          leading: Icon(
-            _getCategoryIcon(log),
-            color: _getCategoryColor(log),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+        child: Card(
+          color: isHovered ? themeColor.withOpacity(0.2) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          title: Text(
-            log.replaceFirst(RegExp(r'\.\d{3}'), ''),
-          ),
-          trailing: IconButton(
-            icon: Icon(Icons.note_add),
-            tooltip: 'メモを追加',
-            onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
-          ),
-          onTap: () async {
-            String? selectedCategory = await showDialog<String>(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title:
-                      Text(AppLocalizations.of(context)!.edit_category_title),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: _categories.map((cat) {
-                      return ListTile(
-                        leading: Icon(cat['icon'], color: cat['color']),
-                        title: Text(cat['label']),
-                        onTap: () {
-                          Navigator.pop(context, cat['label']);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  actions: [
-                    TextButton(
-                      child: Text(AppLocalizations.of(context)!.cancel_button),
-                      onPressed: () => Navigator.pop(context),
+          elevation: 3,
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            leading: Icon(
+              _getCategoryIcon(log),
+              color: _getCategoryColor(log),
+            ),
+            title: Text(
+              log.replaceFirst(RegExp(r'\.\d{3}'), ''),
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.note_add),
+              tooltip: 'メモを追加',
+              onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
+            ),
+            onTap: () async {
+              String? selectedCategory = await showDialog<String>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title:
+                        Text(AppLocalizations.of(context)!.edit_category_title),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: _categories.map((cat) {
+                        return ListTile(
+                          leading: Icon(cat['icon'], color: cat['color']),
+                          title: Text(cat['label']),
+                          onTap: () {
+                            Navigator.pop(context, cat['label']);
+                          },
+                        );
+                      }).toList(),
                     ),
-                  ],
-                );
-              },
-            );
+                    actions: [
+                      TextButton(
+                        child:
+                            Text(AppLocalizations.of(context)!.cancel_button),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  );
+                },
+              );
 
-            if (selectedCategory != null) {
-              final timeStr = log.split(" ")[0]; // 時刻部分を取得
-              final updatedLog = '$timeStr $selectedCategory';
-              await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.reload();
-              final raw = prefs.getString('cry_logs') ?? '{}';
-              final data = Map<String, dynamic>.from(json.decode(raw));
-              final selectedDay = _formatDate(_selectedDay!);
-              final selectedLogs = List<String>.from(data[selectedDay] ?? []);
-              selectedLogs[index] = updatedLog;
+              if (selectedCategory != null) {
+                final timeStr = log.split(" ")[0]; // 時刻部分を取得
+                final updatedLog = '$timeStr $selectedCategory';
+                await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.reload();
+                final raw = prefs.getString('cry_logs') ?? '{}';
+                final data = Map<String, dynamic>.from(json.decode(raw));
+                final selectedDay = _formatDate(_selectedDay!);
+                final selectedLogs = List<String>.from(data[selectedDay] ?? []);
+                selectedLogs[index] = updatedLog;
 
-              data[selectedDay] = selectedLogs;
-              await prefs.setString('cry_logs', json.encode(data));
-              setState(() {
-                _eventMap = data.map(
-                  (k, v) => MapEntry(k, List<String>.from(v)),
-                );
-              });
-            }
-          },
+                data[selectedDay] = selectedLogs;
+                await prefs.setString('cry_logs', json.encode(data));
+                setState(() {
+                  _eventMap = data.map(
+                    (k, v) => MapEntry(k, List<String>.from(v)),
+                  );
+                });
+              }
+            },
+          ),
         ),
       ),
     );
