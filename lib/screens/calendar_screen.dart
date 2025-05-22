@@ -344,6 +344,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 TextButton(
                   child: Text('追加'),
                   onPressed: () {
+                    final now = DateTime.now();
+                    final inputTime = DateTime(
+                      _selectedDay!.year,
+                      _selectedDay!.month,
+                      _selectedDay!.day,
+                      selectedTime!.hour,
+                      selectedTime!.minute,
+                    );
+
+                    if (inputTime.isAfter(now)) {
+                      _showError(context, "未来の時刻は記録できません");
+                      return;
+                    }
+
                     if (selectedCategory != null && selectedTime != null) {
                       final now = DateTime.now();
                       final selectedDate = _selectedDay ?? now;
@@ -363,6 +377,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
           },
         );
       },
+    );
+  }
+
+  void _showError(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('エラー'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
