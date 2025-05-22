@@ -19,6 +19,7 @@ import 'screens/settings_screen.dart'; // 設定画面
 import 'setting/app_themes.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'setting/monthly.dart';
 
 bool _isFirstLaunch = true;
 Future<void> main() async {
@@ -32,6 +33,10 @@ Future<void> main() async {
       await dotenv.load();
       HomeWidget.registerInteractivityCallback(interactiveCallback);
       await MobileAds.instance.initialize();
+
+      // 定期課金の初期化
+      Monthly monthly = Monthly();
+      monthly.listenToPurchaseUpdates();
     }
     runApp(
       MultiProvider(

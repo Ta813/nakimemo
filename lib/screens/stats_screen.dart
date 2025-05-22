@@ -10,6 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../setting/monthly.dart';
 
 class StatsScreen extends StatefulWidget {
   @override
@@ -505,7 +506,7 @@ class _StatsScreenState extends State<StatsScreen> {
       final data = json.decode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'].trim();
     } else {
-      throw Exception('アドバイスの取得に失敗しました: ${response.statusCode}');
+      return 'アドバイスの取得に失敗しました: ${response.statusCode}';
     }
   }
 
@@ -539,47 +540,53 @@ class _StatsScreenState extends State<StatsScreen> {
       final data = json.decode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'].trim();
     } else {
-      throw Exception('励ましメッセージの取得に失敗しました: ${response.statusCode}');
+      return '励ましメッセージの取得に失敗しました: ${response.statusCode}';
     }
   }
 
   /// OpenAI APIを使用して相談内容を取得する
   Future<void> _showConsultationDialog() async {
     String userInput = '';
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("AIに相談する"),
-          content: TextField(
-            onChanged: (value) {
-              userInput = value;
-            },
-            decoration: InputDecoration(
-              hintText: "相談内容を入力してください",
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 3,
-          ),
-          actions: [
-            TextButton(
-              child: Text("キャンセル"),
-              onPressed: () => Navigator.pop(context),
-            ),
-            TextButton(
-              child: Text("送信"),
-              onPressed: () async {
-                Navigator.pop(context); // ダイアログを閉じる
-                if (userInput.isNotEmpty) {
-                  await _fetchAIResponse(userInput);
-                }
+    Monthly monthly = Monthly();
+    final canUse = await monthly.canUseFeature();
+    if (canUse) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("AIに相談する"),
+            content: TextField(
+              onChanged: (value) {
+                userInput = value;
               },
+              decoration: InputDecoration(
+                hintText: "相談内容を入力してください",
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                child: Text("キャンセル"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              TextButton(
+                child: Text("送信"),
+                onPressed: () async {
+                  Navigator.pop(context); // ダイアログを閉じる
+                  if (userInput.isNotEmpty) {
+                    await _fetchAIResponse(userInput);
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // 課金を促すダイアログを表示
+      _showSubscribedDialog(monthly);
+    }
   }
 
   /// OpenAI APIを使用して質問に対する回答を取得する
@@ -663,8 +670,32 @@ class _StatsScreenState extends State<StatsScreen> {
       final data = json.decode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'].trim();
     } else {
-      throw Exception('AIの回答取得に失敗しました: ${response.statusCode}');
+      return 'AIの回答取得に失敗しました: ${response.statusCode}';
     }
+  }
+
+  Future<void> _showSubscribedDialog(Monthly monthly) async {
+    // ダイアログで課金を促す
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("プレミアムにアップグレード"),
+        content: Text("5回の無料利用が終了しました。月額プランをご検討ください。"),
+        actions: [
+          TextButton(
+            child: Text("キャンセル"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: Text("購入"),
+            onPressed: () {
+              Navigator.pop(context);
+              monthly.initIAP(); // 課金処理を開始
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -842,35 +873,41 @@ class _StatsScreenState extends State<StatsScreen> {
                 label: Text(AppLocalizations.of(context)!.adviceButton),
                 onPressed: () async {
                   try {
-                    // ローディングインジケーターを表示
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false, // ダイアログ外をタップしても閉じない
-                      builder: (context) => Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
+                    Monthly monthly = Monthly();
+                    final canUse = await monthly.canUseFeature();
+                    if (canUse) {
+                      // ローディングインジケーターを表示
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false, // ダイアログ外をタップしても閉じない
+                        builder: (context) => Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
 
-                    final advice =
-                        await fetchParentingAdviceFromOpenAI(categoryCounts);
+                      final advice =
+                          await fetchParentingAdviceFromOpenAI(categoryCounts);
 
-                    // ローディングインジケーターを閉じる
-                    Navigator.pop(context);
+                      // ローディングインジケーターを閉じる
+                      Navigator.pop(context);
 
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title:
-                            Text(AppLocalizations.of(context)!.ai_advice_title),
-                        content: Text(advice),
-                        actions: [
-                          TextButton(
-                            child: Text(AppLocalizations.of(context)!.close),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    );
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(
+                              AppLocalizations.of(context)!.ai_advice_title),
+                          content: Text(advice),
+                          actions: [
+                            TextButton(
+                              child: Text(AppLocalizations.of(context)!.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      _showSubscribedDialog(monthly);
+                    }
                   } catch (e) {
                     showDialog(
                       context: context,
@@ -895,33 +932,39 @@ class _StatsScreenState extends State<StatsScreen> {
                 label: Text("励まし"),
                 onPressed: () async {
                   try {
-                    // ローディングインジケーターを表示
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false, // ダイアログ外をタップしても閉じない
-                      builder: (context) => Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
+                    Monthly monthly = Monthly();
+                    final canUse = await monthly.canUseFeature();
+                    if (canUse) {
+                      // ローディングインジケーターを表示
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false, // ダイアログ外をタップしても閉じない
+                        builder: (context) => Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
 
-                    final encouragement = await fetchEncouragementFromAI();
+                      final encouragement = await fetchEncouragementFromAI();
 
-                    // ローディングインジケーターを閉じる
-                    Navigator.pop(context);
+                      // ローディングインジケーターを閉じる
+                      Navigator.pop(context);
 
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text("AIからの励まし"),
-                        content: Text(encouragement),
-                        actions: [
-                          TextButton(
-                            child: Text("閉じる"),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    );
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("AIからの励まし"),
+                          content: Text(encouragement),
+                          actions: [
+                            TextButton(
+                              child: Text("閉じる"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      _showSubscribedDialog(monthly);
+                    }
                   } catch (e) {
                     showDialog(
                       context: context,

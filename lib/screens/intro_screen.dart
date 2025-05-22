@@ -59,7 +59,7 @@ class _IntroScreenState extends State<IntroScreen> {
     slides.add(Slide(
       title: "AIによる分析",
       description: "泣いた理由をAIが分析し、あなたに合ったアドバイスを提供します。\n\n"
-          "※(月額課金)3回だけ無料で体験できます。\n\n",
+          "※(月額課金)5回だけ無料で体験できます。\n\n",
       pathImage: "lib/assets/intro6.png",
       backgroundColor: Colors.deepPurpleAccent,
     ));
