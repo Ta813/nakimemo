@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../l10n/l10n.dart';
 import '../setting/theme_provider.dart';
 import '../setting/app_themes.dart';
+import '../screens/intro_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -59,6 +60,17 @@ class SettingsScreen extends StatelessWidget {
                   child: Text(_getThemeLabel(theme)),
                 );
               }).toList(),
+            ),
+            SizedBox(height: 10),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('使い方ガイドを表示'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => IntroScreen()),
+                );
+              },
             ),
           ],
         ),

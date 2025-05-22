@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nakimemo/screens/intro_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/input_screen.dart';
 import 'screens/calendar_screen.dart';
@@ -19,9 +20,14 @@ import 'setting/app_themes.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+bool _isFirstLaunch = true;
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+
+    final prefs = await SharedPreferences.getInstance();
+    _isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
+
     if (!kIsWeb) {
       await dotenv.load();
       HomeWidget.registerInteractivityCallback(interactiveCallback);
@@ -104,7 +110,7 @@ class MyApp extends StatelessWidget {
           },
           title: "ナキメモ",
           theme: appThemeData[themeProvider.theme],
-          home: HomePage(),
+          home: _isFirstLaunch ? IntroScreen() : HomePage(),
         );
       },
     );
