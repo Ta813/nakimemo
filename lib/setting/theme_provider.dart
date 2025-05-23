@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_themes.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  AppTheme _theme = AppTheme.pink;
+  AppTheme _theme = AppTheme.pinkLight;
 
   AppTheme get theme => _theme;
 

@@ -298,7 +298,9 @@ class _InputScreenState extends State<InputScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            color: isNew ? themeColor.withOpacity(0.15) : Colors.white,
+            color: isNew
+                ? themeColor.withOpacity(0.15)
+                : Theme.of(context).cardColor,
             child: ListTile(
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -436,7 +438,7 @@ class _InputScreenState extends State<InputScreen> {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
               '子どもが泣いた時に「泣いた！」ボタンを押してください。\n',
-              style: TextStyle(fontSize: 16, color: Colors.black87),
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ),
@@ -464,7 +466,7 @@ class _InputScreenState extends State<InputScreen> {
             child: Text(
               '落ち着いたらカテゴリを選んでください。\n'
               '「泣いた！」のままでも大丈夫です。',
-              style: TextStyle(fontSize: 15, color: Colors.black87),
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ),

@@ -203,7 +203,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
         child: Card(
-          color: isHovered ? themeColor.withOpacity(0.2) : Colors.white,
+          color: isHovered
+              ? themeColor.withOpacity(0.2)
+              : Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

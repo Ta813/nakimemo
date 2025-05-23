@@ -125,14 +125,22 @@ class SettingsScreen extends StatelessWidget {
 
   String _getThemeLabel(AppTheme theme) {
     switch (theme) {
-      case AppTheme.pink:
-        return '🌸 ピンク';
-      case AppTheme.mint:
-        return '🌿 ミント';
-      case AppTheme.lavender:
-        return '💜 ラベンダー';
-      default:
-        return theme.toString();
+      case AppTheme.pinkLight:
+        return '🌸 ピンク（ライト）';
+      case AppTheme.pinkDark:
+        return '🌸 ピンク（ダーク）';
+      case AppTheme.mintLight:
+        return '🌿 ミント（ライト）';
+      case AppTheme.mintDark:
+        return '🌿 ミント（ダーク）';
+      case AppTheme.lavenderLight:
+        return '💜 ラベンダー（ライト）';
+      case AppTheme.lavenderDark:
+        return '💜 ラベンダー（ダーク）';
+      case AppTheme.white:
+        return '⬜ ホワイト（シンプル）';
+      case AppTheme.black:
+        return '⬛ ブラック（ダーク）';
     }
   }
 }
