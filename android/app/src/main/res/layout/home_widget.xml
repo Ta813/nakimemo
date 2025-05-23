@@ -15,7 +15,7 @@
         <ImageButton
             android:id="@+id/button_cry"
             android:layout_width="96dp"
-            android:layout_height="40dp"
+            android:layout_height="48dp"
             android:contentDescription="泣いた！"
             android:src="@drawable/cry"
             android:background="@android:color/transparent" />

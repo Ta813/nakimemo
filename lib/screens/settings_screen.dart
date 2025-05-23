@@ -6,6 +6,8 @@ import '../l10n/l10n.dart';
 import '../setting/theme_provider.dart';
 import '../setting/app_themes.dart';
 import '../screens/intro_screen.dart';
+import '../setting/font_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -15,6 +17,19 @@ class SettingsScreen extends StatelessWidget {
 
     final themeProvider = Provider.of<ThemeProvider>(context);
     final currentTheme = themeProvider.theme;
+
+    final fontProvider = Provider.of<FontProvider>(context);
+    final currentFont = fontProvider.selectedFont;
+
+    final fontOptions = [
+      'Mochiy Pop One',
+      'Kosugi Maru',
+      'Yusei Magic',
+      'RocknRoll One',
+      'Roboto',
+      'Poppins',
+      'Pacifico',
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -58,6 +73,23 @@ class SettingsScreen extends StatelessWidget {
                 return DropdownMenuItem(
                   value: theme,
                   child: Text(_getThemeLabel(theme)),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 10),
+            Text("フォント", style: Theme.of(context).textTheme.titleMedium),
+            SizedBox(height: 10),
+            DropdownButton<String>(
+              value: currentFont,
+              onChanged: (String? font) {
+                if (font != null) {
+                  fontProvider.setFont(font);
+                }
+              },
+              items: fontOptions.map((font) {
+                return DropdownMenuItem<String>(
+                  value: font,
+                  child: Text('あいう ABC', style: GoogleFonts.getFont(font)),
                 );
               }).toList(),
             ),

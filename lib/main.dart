@@ -20,6 +20,8 @@ import 'setting/app_themes.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'setting/monthly.dart';
+import 'setting/font_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 bool _isFirstLaunch = true;
 Future<void> main() async {
@@ -28,6 +30,7 @@ Future<void> main() async {
 
     final prefs = await SharedPreferences.getInstance();
     _isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
+    final font = prefs.getString('selectedFont') ?? 'Roboto';
 
     if (!kIsWeb) {
       await dotenv.load();
@@ -43,8 +46,9 @@ Future<void> main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => FontProvider()),
         ],
-        child: MyApp(),
+        child: MyApp(selectedFont: font),
       ),
     );
   } catch (e) {
@@ -77,9 +81,13 @@ void interactiveCallback(dynamic uri) async {
 }
 
 class MyApp extends StatelessWidget {
+  final String selectedFont;
+  const MyApp({required this.selectedFont});
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final fontProvider = Provider.of<FontProvider>(context);
 
     return Consumer<LocaleProvider>(
       builder: (context, provider, _) {
@@ -114,7 +122,9 @@ class MyApp extends StatelessWidget {
             );
           },
           title: "ナキメモ",
-          theme: appThemeData[themeProvider.theme],
+          theme: appThemeData[themeProvider.theme]!.copyWith(
+            textTheme: GoogleFonts.getTextTheme(fontProvider.selectedFont),
+          ),
           home: _isFirstLaunch ? IntroScreen() : HomePage(),
         );
       },
