@@ -300,18 +300,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       labelText: 'カテゴリを選択',
                       border: OutlineInputBorder(),
                     ),
-                    items: [
-                      '泣いた！',
-                      'ミルク',
-                      'おむつ',
-                      '眠い',
-                      '抱っこ',
-                      '不快',
-                      '体調不良',
-                    ].map((label) {
+                    items: _categories.map<DropdownMenuItem<String>>((cat) {
                       return DropdownMenuItem<String>(
-                        value: label,
-                        child: Text(label),
+                        value: cat['label'],
+                        child: Row(
+                          children: [
+                            Icon(cat['icon'], color: cat['color']),
+                            SizedBox(width: 8),
+                            Text(cat['label']),
+                          ],
+                        ),
                       );
                     }).toList(),
                     onChanged: (value) {
