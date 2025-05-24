@@ -50,11 +50,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Set<int> _hoveredIndexes = {}; // カーソルが当たっている行のインデックスを追跡
 
-  final ScrollController _scrollController =
-      ScrollController(); // スクロールコントローラーを追加
-
-  double _calendarHeight = 340.0; // 初期カレンダーの高さ
-
   BannerAd? _bannerAd;
 
   bool isDark = false;
@@ -64,7 +59,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     super.initState();
     _focusedDay = DateTime.now();
     _selectedDay = _focusedDay;
-    _scrollController.addListener(_handleScroll);
     _loadEvents();
 
     if (!kIsWeb) {
@@ -77,20 +71,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         listener: BannerAdListener(),
       )..load();
     }
-  }
-
-  void _handleScroll() {
-    setState(() {
-      final offset = _scrollController.offset;
-      _calendarHeight = (340 - offset).clamp(0.0, 340.0); // 最小0まで縮む
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_handleScroll);
-    _scrollController.dispose();
-    super.dispose();
   }
 
   // SharedPreferencesからイベントを読み込む
@@ -459,17 +439,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _hoveredIndexes.add(dayLogs.indexOf(log)); // 新規追加された行を追跡
     });
 
-    // 新しく追加された行にスクロール
-    final newIndex = dayLogs.indexOf(log);
-    Future.delayed(Duration(milliseconds: 100), () {
-      if (!mounted) return;
-      _scrollController.animateTo(
-        newIndex * 60.0, // 各行の高さ（例: 60.0）に基づいて計算
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    });
-
     // 一定時間後にホバー状態を解除
     Future.delayed(Duration(seconds: 2), () {
       if (!mounted) return;
@@ -565,8 +534,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -583,61 +550,92 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          AnimatedContainer(
-            duration: Duration(milliseconds: 150),
-            height: _calendarHeight,
-            child: TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              eventLoader: _getEventsForDay,
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-                });
-              },
-              calendarStyle: CalendarStyle(
-                markerDecoration: BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
+          // 背景のカレンダー（常に表示）
+          Positioned.fill(
+            child: Column(
+              children: [
+                Container(
+                  height: 340, // 任意の高さ
+                  child: TableCalendar(
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                    eventLoader: _getEventsForDay,
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    calendarStyle: CalendarStyle(
+                      markerDecoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Expanded(child: Container()), // カレンダーの下を埋める
+              ],
             ),
           ),
-          const Divider(
-            thickness: 1, // 線の太さ
-            color: Colors.grey, // 線の色
-            height: 20, // 線の上下の余白
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end, // ボタンを右寄せ
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.add,
-                  size: 15,
+
+          // 上からかぶさるリスト
+          DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.2,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) {
+              final events = _getEventsForDay(_selectedDay!);
+
+              return Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
                 ),
-                tooltip: '追加',
-                onPressed: () async {
-                  await _showAddLogDialog();
-                },
-              ),
-            ],
-          ),
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController, // スクロールコントローラーを設定
-              padding:
-                  const EdgeInsets.symmetric(vertical: 0.0), // リスト全体の上下余白を削除
-              itemCount: _getEventsForDay(_selectedDay!).length,
-              itemBuilder: (context, index) {
-                return _itemBuilder(index);
-              },
-            ),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min, // これ重要
+                    children: [
+                      // 上のバー（つかみ用）
+                      Container(
+                        width: 40,
+                        height: 6,
+                        margin: EdgeInsets.only(top: 10, bottom: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      // 追加ボタン
+                      Container(
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: IconButton(
+                          icon: Icon(Icons.add),
+                          tooltip: '追加',
+                          onPressed: _showAddLogDialog,
+                        ),
+                      ),
+                      Divider(height: 1),
+                      // イベントリスト
+                      ListView.builder(
+                        controller: scrollController,
+                        physics: NeverScrollableScrollPhysics(), // 二重スクロール防止
+                        shrinkWrap: true, // Column の中でサイズを自動調整
+                        itemCount: events.length,
+                        itemBuilder: (context, index) => _itemBuilder(index),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
