@@ -53,6 +53,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final ScrollController _scrollController =
       ScrollController(); // スクロールコントローラーを追加
 
+  double _calendarHeight = 340.0; // 初期カレンダーの高さ
+
   BannerAd? _bannerAd;
 
   bool isDark = false;
@@ -62,6 +64,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     super.initState();
     _focusedDay = DateTime.now();
     _selectedDay = _focusedDay;
+    _scrollController.addListener(_handleScroll);
     _loadEvents();
 
     if (!kIsWeb) {
@@ -74,6 +77,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
         listener: BannerAdListener(),
       )..load();
     }
+  }
+
+  void _handleScroll() {
+    setState(() {
+      final offset = _scrollController.offset;
+      _calendarHeight = (340 - offset).clamp(0.0, 340.0); // 最小0まで縮む
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   // SharedPreferencesからイベントを読み込む
@@ -568,22 +585,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: Column(
         children: [
-          TableCalendar(
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            eventLoader: _getEventsForDay,
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-            },
-            calendarStyle: CalendarStyle(
-              markerDecoration: BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
+          AnimatedContainer(
+            duration: Duration(milliseconds: 150),
+            height: _calendarHeight,
+            child: TableCalendar(
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: _getEventsForDay,
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+              },
+              calendarStyle: CalendarStyle(
+                markerDecoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
