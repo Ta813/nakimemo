@@ -137,6 +137,11 @@ class _InputScreenState extends State<InputScreen> {
         _newlyAddedIndexes.remove(0); // 色をリセット
       });
     });
+
+    // スナックバーで追加を通知
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$entry を追加しました')),
+    );
   }
 
   // ヘルプダイアログを表示するメソッド
@@ -302,6 +307,11 @@ class _InputScreenState extends State<InputScreen> {
             setState(() {
               _logs = todayLogs;
             });
+
+            // スナックバーで追加を通知
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$updatedLog に変更しました')),
+            );
           }
         },
         child: Container(
@@ -422,6 +432,11 @@ class _InputScreenState extends State<InputScreen> {
       setState(() {
         _logs = todayLogs;
       });
+
+      // スナックバーで追加を通知
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$log にメモを保存しました')),
+      );
     }
   }
 

@@ -211,7 +211,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
         child: Card(
           color: isHovered
               ? themeColor.withOpacity(0.2)
@@ -286,6 +286,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     (k, v) => MapEntry(k, List<String>.from(v)),
                   );
                 });
+
+                // スナックバーでカテゴリ変更を通知
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$updatedLog に変更しました')),
+                );
               }
             },
           ),
@@ -446,6 +451,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _hoveredIndexes.remove(dayLogs.indexOf(log));
       });
     });
+
+    // スナックバーで追加を通知
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$log を追加しました')),
+    );
   }
 
   // メモを追加するダイアログを表示
@@ -529,6 +539,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
           (k, v) => MapEntry(k, List<String>.from(v)),
         );
       });
+
+      // スナックバーで追加を通知
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$log にメモを保存しました')),
+      );
     }
   }
 
