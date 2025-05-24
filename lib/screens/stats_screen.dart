@@ -281,20 +281,31 @@ class _StatsScreenState extends State<StatsScreen> {
 
   /// 時間帯別統計を取得する
   Future<Map<String, int>> getHourlyStats() async {
-    final result = {'0-6H': 0, '6-12H': 0, '12-18H': 0, '18-24H': 0};
+    final result = {
+      '0-4H': 0,
+      '4-8H': 0,
+      '8-12H': 0,
+      '12-16H': 0,
+      '16-20H': 0,
+      '20-24H': 0
+    };
 
     for (final entry in selectedLogs.entries) {
       for (final log in entry.value) {
         final hour = int.parse(log.substring(0, 2));
         String timeRange = '';
-        if (hour >= 0 && hour < 6) {
-          timeRange = '0-6H';
+        if (hour >= 0 && hour < 4) {
+          timeRange = '0-4H';
+        } else if (hour < 8) {
+          timeRange = '4-8H';
         } else if (hour < 12) {
-          timeRange = '6-12H';
-        } else if (hour < 18) {
-          timeRange = '12-18H';
+          timeRange = '8-12H';
+        } else if (hour < 16) {
+          timeRange = '12-16H';
+        } else if (hour < 20) {
+          timeRange = '16-20H';
         } else {
-          timeRange = '18-24H';
+          timeRange = '20-24H';
         }
         result[timeRange] = result[timeRange]! + 1;
       }
@@ -834,10 +845,12 @@ class _StatsScreenState extends State<StatsScreen> {
                               if (!snapshot.hasData) return SizedBox.shrink();
                               final data = snapshot.data!;
                               final timeRanges = [
-                                '0-6H',
-                                '6-12H',
-                                '12-18H',
-                                '18-24H'
+                                '0-4H',
+                                '4-8H',
+                                '8-12H',
+                                '12-16H',
+                                '16-20H',
+                                '20-24H'
                               ];
 
                               return SizedBox(
@@ -886,7 +899,7 @@ class _StatsScreenState extends State<StatsScreen> {
                                               return Text(
                                                   timeRanges[value.toInt()],
                                                   style: TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 10,
                                                       color: isDark
                                                           ? Colors.white
                                                           : Colors.black));
