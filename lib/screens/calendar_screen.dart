@@ -55,6 +55,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   BannerAd? _bannerAd;
 
+  bool isDark = false;
+
   @override
   void initState() {
     super.initState();
@@ -162,15 +164,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('カレンダー画面ヘルプ'),
+          title: Text('カレンダー画面ヘルプ',
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: SingleChildScrollView(
             child: ListBody(
               children: [
-                Text('・カレンダーの日付をタップすると、その日の記録が表示されます。'),
-                Text('・記録の横のアイコンはカテゴリを示しています。'),
-                Text('・記録をタップするとカテゴリを編集できます。'),
-                Text('・記録をスワイプすると削除できます。'),
-                Text('・日付の下に丸いマーカーが表示されている日は、記録が存在する日です。'),
+                Text('・カレンダーの日付をタップすると、その日の記録が表示されます。',
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text('・記録の横のアイコンはカテゴリを示しています。',
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text('・記録をタップするとカテゴリを編集できます。',
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text('・記録をスワイプすると削除できます。',
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text('・日付の下に丸いマーカーが表示されている日は、記録が存在する日です。',
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
               ],
             ),
           ),
@@ -230,8 +243,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title:
-                        Text(AppLocalizations.of(context)!.edit_category_title),
+                    title: Text(
+                        AppLocalizations.of(context)!.edit_category_title,
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black)),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: _categories.map((cat) {
@@ -293,7 +308,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('記録を追加'),
+              title: Text('記録を追加',
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -463,7 +480,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('メモを編集'),
+          title: Text('メモを編集',
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: TextField(
             controller:
                 TextEditingController(text: existingMemo), // 既存のメモを初期値に設定
@@ -530,6 +548,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         actions: [

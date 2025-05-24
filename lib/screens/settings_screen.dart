@@ -31,6 +31,8 @@ class SettingsScreen extends StatelessWidget {
       'Pacifico',
     ];
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.settingsTitle),
@@ -41,7 +43,10 @@ class SettingsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(AppLocalizations.of(context)!.language,
-                style: Theme.of(context).textTheme.titleMedium),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: isDark ? Colors.white : Colors.black)),
             SizedBox(height: 10),
             DropdownButton<Locale>(
               value: currentLocale,
@@ -54,13 +59,18 @@ class SettingsScreen extends StatelessWidget {
                 final langLabel = _getLocaleLabel(locale.languageCode);
                 return DropdownMenuItem(
                   value: locale,
-                  child: Text(langLabel),
+                  child: Text(langLabel,
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black)),
                 );
               }).toList(),
             ),
             SizedBox(height: 10),
             Text(AppLocalizations.of(context)!.theme,
-                style: Theme.of(context).textTheme.titleMedium),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: isDark ? Colors.white : Colors.black)),
             SizedBox(height: 10),
             DropdownButton<AppTheme>(
               value: currentTheme,
@@ -72,12 +82,18 @@ class SettingsScreen extends StatelessWidget {
               items: AppTheme.values.map((theme) {
                 return DropdownMenuItem(
                   value: theme,
-                  child: Text(_getThemeLabel(theme)),
+                  child: Text(_getThemeLabel(theme),
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black)),
                 );
               }).toList(),
             ),
             SizedBox(height: 10),
-            Text("フォント", style: Theme.of(context).textTheme.titleMedium),
+            Text("フォント",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: isDark ? Colors.white : Colors.black)),
             SizedBox(height: 10),
             DropdownButton<String>(
               value: currentFont,
@@ -89,7 +105,9 @@ class SettingsScreen extends StatelessWidget {
               items: fontOptions.map((font) {
                 return DropdownMenuItem<String>(
                   value: font,
-                  child: Text('あいう ABC', style: GoogleFonts.getFont(font)),
+                  child: Text('あいう ABC',
+                      style: GoogleFonts.getFont(font).copyWith(
+                          color: isDark ? Colors.white : Colors.black)),
                 );
               }).toList(),
             ),

@@ -29,6 +29,8 @@ class _StatsScreenState extends State<StatsScreen> {
   Map<String, int> categoryCounts = {};
   Map<String, List<String>> selectedLogs = {};
 
+  bool isDark = false;
+
   BannerAd? _bannerAd;
 
   @override
@@ -314,7 +316,8 @@ class _StatsScreenState extends State<StatsScreen> {
             });
           },
         ),
-        Text(label),
+        Text(label,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
       ],
     );
   }
@@ -340,7 +343,11 @@ class _StatsScreenState extends State<StatsScreen> {
         value: selectedYear,
         items: List.generate(5, (index) {
           final year = DateTime.now().year - 2 + index;
-          return DropdownMenuItem(value: year, child: Text('$year年'));
+          return DropdownMenuItem(
+              value: year,
+              child: Text('$year年',
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)));
         }),
         onChanged: (value) {
           setState(() {
@@ -356,7 +363,9 @@ class _StatsScreenState extends State<StatsScreen> {
             12,
             (index) => DropdownMenuItem(
                   value: index + 1,
-                  child: Text('${index + 1}月'),
+                  child: Text('${index + 1}月',
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black)),
                 )),
         onChanged: (value) {
           setState(() {
@@ -375,7 +384,11 @@ class _StatsScreenState extends State<StatsScreen> {
         value: selectedYear,
         items: List.generate(5, (index) {
           final year = DateTime.now().year - 2 + index;
-          return DropdownMenuItem(value: year, child: Text('$year年'));
+          return DropdownMenuItem(
+              value: year,
+              child: Text('$year年',
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)));
         }),
         onChanged: (value) {
           setState(() {
@@ -391,7 +404,9 @@ class _StatsScreenState extends State<StatsScreen> {
             12,
             (index) => DropdownMenuItem(
                   value: index + 1,
-                  child: Text('${index + 1}月'),
+                  child: Text('${index + 1}月',
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black)),
                 )),
         onChanged: (value) {
           setState(() {
@@ -406,7 +421,8 @@ class _StatsScreenState extends State<StatsScreen> {
         items: List.generate(6, (i) => i + 1).map((week) {
           return DropdownMenuItem(
             value: week,
-            child: Text('第${week}週'),
+            child: Text('第${week}週',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           );
         }).toList(),
         onChanged: (value) {
@@ -428,7 +444,11 @@ class _StatsScreenState extends State<StatsScreen> {
           value: selectedYear,
           items: List.generate(5, (index) {
             final year = DateTime.now().year - 2 + index;
-            return DropdownMenuItem(value: year, child: Text('$year年'));
+            return DropdownMenuItem(
+                value: year,
+                child: Text('$year年',
+                    style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black)));
           }),
           onChanged: (value) {
             setState(() {
@@ -444,7 +464,9 @@ class _StatsScreenState extends State<StatsScreen> {
               12,
               (index) => DropdownMenuItem(
                     value: index + 1,
-                    child: Text('${index + 1}月'),
+                    child: Text('${index + 1}月',
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black)),
                   )),
           onChanged: (value) {
             setState(() {
@@ -460,7 +482,9 @@ class _StatsScreenState extends State<StatsScreen> {
               DateUtils.getDaysInMonth(selectedYear, selectedMonth),
               (index) => DropdownMenuItem(
                     value: index + 1,
-                    child: Text('${index + 1}日'),
+                    child: Text('${index + 1}日',
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black)),
                   )),
           onChanged: (value) {
             setState(() {
@@ -554,7 +578,8 @@ class _StatsScreenState extends State<StatsScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("AIに相談する"),
+            title: Text("AIに相談する",
+                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             content: TextField(
               onChanged: (value) {
                 userInput = value;
@@ -611,9 +636,13 @@ class _StatsScreenState extends State<StatsScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("AIの回答"),
+          title: Text("AIの回答",
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: SingleChildScrollView(
-            child: Text(response), // 結果をスクロール可能にする
+            child: Text(response,
+                style: TextStyle(
+                    color:
+                        isDark ? Colors.white : Colors.black)), // 結果をスクロール可能にする
           ),
           actions: [
             TextButton(
@@ -631,8 +660,10 @@ class _StatsScreenState extends State<StatsScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("エラー"),
-          content: Text("AIの回答を取得できませんでした。\n\n$e"),
+          title: Text("エラー",
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+          content: Text("AIの回答を取得できませんでした。\n\n$e",
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           actions: [
             TextButton(
               child: Text("閉じる"),
@@ -679,8 +710,10 @@ class _StatsScreenState extends State<StatsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("プレミアムにアップグレード"),
-        content: Text("5回の無料利用が終了しました。月額プランをご検討ください。"),
+        title: Text("プレミアムにアップグレード",
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        content: Text("5回の無料利用が終了しました。月額プランをご検討ください。",
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
         actions: [
           TextButton(
             child: Text("キャンセル"),
@@ -700,6 +733,8 @@ class _StatsScreenState extends State<StatsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -715,9 +750,13 @@ class _StatsScreenState extends State<StatsScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.stats_help_title),
-                  content:
-                      Text(AppLocalizations.of(context)!.stats_help_content),
+                  title: Text(AppLocalizations.of(context)!.stats_help_title,
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black)),
+                  content: Text(
+                      AppLocalizations.of(context)!.stats_help_content,
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black)),
                   actions: [
                     TextButton(
                       child: Text(AppLocalizations.of(context)!.close),
@@ -749,7 +788,10 @@ class _StatsScreenState extends State<StatsScreen> {
             SizedBox(height: 20),
             Expanded(
               child: categoryCounts.isEmpty
-                  ? Center(child: Text(AppLocalizations.of(context)!.noRecords))
+                  ? Center(
+                      child: Text(AppLocalizations.of(context)!.noRecords,
+                          style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black)))
                   : SingleChildScrollView(
                       child: Column(
                         children: [
@@ -779,7 +821,13 @@ class _StatsScreenState extends State<StatsScreen> {
                               )),
                           SizedBox(height: 20),
                           Text('時間帯ごとの泣く傾向',
-                              style: Theme.of(context).textTheme.titleMedium),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black)),
                           FutureBuilder<Map<String, int>>(
                             future: getHourlyStats(),
                             builder: (context, snapshot) {
@@ -836,7 +884,12 @@ class _StatsScreenState extends State<StatsScreen> {
                                                 value.toInt() <
                                                     timeRanges.length) {
                                               return Text(
-                                                  timeRanges[value.toInt()]);
+                                                  timeRanges[value.toInt()],
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: isDark
+                                                          ? Colors.white
+                                                          : Colors.black));
                                             }
                                             return Text('');
                                           },
@@ -864,7 +917,8 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
             Text(
               "AI機能",
-              style: Theme.of(context).textTheme.titleMedium, // タイトルのスタイル
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: isDark ? Colors.white : Colors.black), // タイトルのスタイル
             ),
             const SizedBox(height: 10),
             Row(spacing: 5, children: [
@@ -952,8 +1006,12 @@ class _StatsScreenState extends State<StatsScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text("AIからの励まし"),
-                          content: Text(encouragement),
+                          title: Text("AIからの励まし",
+                              style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black)),
+                          content: Text(encouragement,
+                              style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black)),
                           actions: [
                             TextButton(
                               child: Text("閉じる"),
@@ -969,8 +1027,12 @@ class _StatsScreenState extends State<StatsScreen> {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text("エラー"),
-                        content: Text("励ましメッセージの取得に失敗しました。\n\n$e"),
+                        title: Text("エラー",
+                            style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black)),
+                        content: Text("励ましメッセージの取得に失敗しました。\n\n$e",
+                            style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black)),
                         actions: [
                           TextButton(
                             child: Text("閉じる"),

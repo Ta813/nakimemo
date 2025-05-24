@@ -21,6 +21,8 @@ class _InputScreenState extends State<InputScreen> {
 
   BannerAd? _bannerAd;
 
+  bool isDark = false;
+
   // カテゴリの定義
   final List<Map<String, dynamic>> _categories = [
     {
@@ -143,14 +145,23 @@ class _InputScreenState extends State<InputScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.help_title),
+          title: Text(AppLocalizations.of(context)!.help_title,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: SingleChildScrollView(
             child: ListBody(
               children: [
-                Text(AppLocalizations.of(context)!.help_text_1),
-                Text(AppLocalizations.of(context)!.help_text_2),
-                Text(AppLocalizations.of(context)!.help_text_3),
-                Text(AppLocalizations.of(context)!.help_text_4),
+                Text(AppLocalizations.of(context)!.help_text_1,
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text(AppLocalizations.of(context)!.help_text_2,
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text(AppLocalizations.of(context)!.help_text_3,
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
+                Text(AppLocalizations.of(context)!.help_text_4,
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
               ],
             ),
           ),
@@ -242,7 +253,9 @@ class _InputScreenState extends State<InputScreen> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text('カテゴリを選択'),
+                title: Text('カテゴリを選択',
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black)),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: _categories.map((cat) {
@@ -341,7 +354,8 @@ class _InputScreenState extends State<InputScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('メモを編集'),
+          title: Text('メモを編集',
+              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: TextField(
             controller:
                 TextEditingController(text: existingMemo), // 既存のメモを初期値に設定
@@ -413,6 +427,8 @@ class _InputScreenState extends State<InputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -438,7 +454,10 @@ class _InputScreenState extends State<InputScreen> {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
               '子どもが泣いた時に「泣いた！」ボタンを押してください。\n',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: isDark ? Colors.white : Colors.black),
               textAlign: TextAlign.center,
             ),
           ),
@@ -466,7 +485,8 @@ class _InputScreenState extends State<InputScreen> {
             child: Text(
               '落ち着いたらカテゴリを選んでください。\n'
               '「泣いた！」のままでも大丈夫です。',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                  fontSize: 16, color: isDark ? Colors.white : Colors.black),
               textAlign: TextAlign.center,
             ),
           ),
