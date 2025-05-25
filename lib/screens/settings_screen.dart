@@ -82,14 +82,14 @@ class SettingsScreen extends StatelessWidget {
               items: AppTheme.values.map((theme) {
                 return DropdownMenuItem(
                   value: theme,
-                  child: Text(_getThemeLabel(theme),
+                  child: Text(_getThemeLabel(theme, context),
                       style: TextStyle(
                           color: isDark ? Colors.white : Colors.black)),
                 );
               }).toList(),
             ),
             SizedBox(height: 10),
-            Text("フォント",
+            Text(AppLocalizations.of(context)!.font,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -114,7 +114,7 @@ class SettingsScreen extends StatelessWidget {
             SizedBox(height: 10),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('使い方ガイドを表示'),
+              title: Text(AppLocalizations.of(context)!.show_guide),
               onTap: () {
                 Navigator.push(
                   context,
@@ -141,24 +141,25 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  String _getThemeLabel(AppTheme theme) {
+  String _getThemeLabel(AppTheme theme, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     switch (theme) {
       case AppTheme.pinkLight:
-        return '🌸 ピンク（ライト）';
+        return l10n.theme_pinkLight;
       case AppTheme.pinkDark:
-        return '🌸 ピンク（ダーク）';
+        return l10n.theme_pinkDark;
       case AppTheme.mintLight:
-        return '🌿 ミント（ライト）';
+        return l10n.theme_mintLight;
       case AppTheme.mintDark:
-        return '🌿 ミント（ダーク）';
+        return l10n.theme_mintDark;
       case AppTheme.lavenderLight:
-        return '💜 ラベンダー（ライト）';
+        return l10n.theme_lavenderLight;
       case AppTheme.lavenderDark:
-        return '💜 ラベンダー（ダーク）';
+        return l10n.theme_lavenderDark;
       case AppTheme.white:
-        return '⬜ ホワイト（シンプル）';
+        return l10n.theme_white;
       case AppTheme.black:
-        return '⬛ ブラック（ダーク）';
+        return l10n.theme_black;
     }
   }
 }

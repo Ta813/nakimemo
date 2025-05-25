@@ -356,7 +356,7 @@ class _StatsScreenState extends State<StatsScreen> {
           final year = DateTime.now().year - 2 + index;
           return DropdownMenuItem(
               value: year,
-              child: Text('$year年',
+              child: Text(AppLocalizations.of(context)!.year_label(year),
                   style:
                       TextStyle(color: isDark ? Colors.white : Colors.black)));
         }),
@@ -374,7 +374,8 @@ class _StatsScreenState extends State<StatsScreen> {
             12,
             (index) => DropdownMenuItem(
                   value: index + 1,
-                  child: Text('${index + 1}月',
+                  child: Text(
+                      AppLocalizations.of(context)!.month_label(index + 1),
                       style: TextStyle(
                           color: isDark ? Colors.white : Colors.black)),
                 )),
@@ -397,7 +398,7 @@ class _StatsScreenState extends State<StatsScreen> {
           final year = DateTime.now().year - 2 + index;
           return DropdownMenuItem(
               value: year,
-              child: Text('$year年',
+              child: Text(AppLocalizations.of(context)!.year_label(year),
                   style:
                       TextStyle(color: isDark ? Colors.white : Colors.black)));
         }),
@@ -415,7 +416,8 @@ class _StatsScreenState extends State<StatsScreen> {
             12,
             (index) => DropdownMenuItem(
                   value: index + 1,
-                  child: Text('${index + 1}月',
+                  child: Text(
+                      AppLocalizations.of(context)!.month_label(index + 1),
                       style: TextStyle(
                           color: isDark ? Colors.white : Colors.black)),
                 )),
@@ -432,7 +434,7 @@ class _StatsScreenState extends State<StatsScreen> {
         items: List.generate(6, (i) => i + 1).map((week) {
           return DropdownMenuItem(
             value: week,
-            child: Text('第${week}週',
+            child: Text(AppLocalizations.of(context)!.week_label(week),
                 style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           );
         }).toList(),
@@ -457,7 +459,7 @@ class _StatsScreenState extends State<StatsScreen> {
             final year = DateTime.now().year - 2 + index;
             return DropdownMenuItem(
                 value: year,
-                child: Text('$year年',
+                child: Text(AppLocalizations.of(context)!.year_label(year),
                     style: TextStyle(
                         color: isDark ? Colors.white : Colors.black)));
           }),
@@ -475,7 +477,8 @@ class _StatsScreenState extends State<StatsScreen> {
               12,
               (index) => DropdownMenuItem(
                     value: index + 1,
-                    child: Text('${index + 1}月',
+                    child: Text(
+                        AppLocalizations.of(context)!.month_label(index + 1),
                         style: TextStyle(
                             color: isDark ? Colors.white : Colors.black)),
                   )),
@@ -493,7 +496,8 @@ class _StatsScreenState extends State<StatsScreen> {
               DateUtils.getDaysInMonth(selectedYear, selectedMonth),
               (index) => DropdownMenuItem(
                     value: index + 1,
-                    child: Text('${index + 1}日',
+                    child: Text(
+                        AppLocalizations.of(context)!.day_label(index + 1),
                         style: TextStyle(
                             color: isDark ? Colors.white : Colors.black)),
                   )),
@@ -516,8 +520,9 @@ class _StatsScreenState extends State<StatsScreen> {
     final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
 
     final prompt = '''
-以下の育児統計データに基づいて、親に対する短く実用的なアドバイスを日本語で1つ提示してください。
-データ: ${categoryCounts.entries.map((e) => '${e.key}: ${e.value}回').join(', ')}。
+
+${AppLocalizations.of(context)!.promptAdviceFromData}
+${AppLocalizations.of(context)!.data}: ${categoryCounts.entries.map((e) => '${e.key}: ${e.value}${AppLocalizations.of(context)!.times}').join(', ')}。
 ''';
 
     final response = await http.post(
@@ -529,7 +534,10 @@ class _StatsScreenState extends State<StatsScreen> {
       body: json.encode({
         'model': 'gpt-3.5-turbo',
         'messages': [
-          {'role': 'system', 'content': 'あなたは親にやさしく的確なアドバイスをする保育士です。'},
+          {
+            'role': 'system',
+            'content': AppLocalizations.of(context)!.roleNurseryTeacher
+          },
           {'role': 'user', 'content': prompt}
         ],
         'max_tokens': 200,
@@ -541,7 +549,7 @@ class _StatsScreenState extends State<StatsScreen> {
       final data = json.decode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'].trim();
     } else {
-      return 'アドバイスの取得に失敗しました: ${response.statusCode}';
+      return '${AppLocalizations.of(context)!.advice_fetch_error} ${response.statusCode}';
     }
   }
 
@@ -551,7 +559,7 @@ class _StatsScreenState extends State<StatsScreen> {
     final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
 
     final prompt = '''
-育児で疲れている親を励ます短いメッセージを日本語で1つ提供してください。
+${AppLocalizations.of(context)!.promptEncouragement}
 ''';
 
     final response = await http.post(
@@ -563,7 +571,10 @@ class _StatsScreenState extends State<StatsScreen> {
       body: json.encode({
         'model': 'gpt-3.5-turbo',
         'messages': [
-          {'role': 'system', 'content': 'あなたは親を励ます優しいAIです。'},
+          {
+            'role': 'system',
+            'content': AppLocalizations.of(context)!.roleEncouragingAI
+          },
           {'role': 'user', 'content': prompt}
         ],
         'max_tokens': 100,
@@ -575,7 +586,7 @@ class _StatsScreenState extends State<StatsScreen> {
       final data = json.decode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'].trim();
     } else {
-      return '励ましメッセージの取得に失敗しました: ${response.statusCode}';
+      return '${AppLocalizations.of(context)!.encouragement_fetch_error}: ${response.statusCode}';
     }
   }
 
@@ -589,25 +600,25 @@ class _StatsScreenState extends State<StatsScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("AIに相談する",
+            title: Text(AppLocalizations.of(context)!.ai_consultation_title,
                 style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             content: TextField(
               onChanged: (value) {
                 userInput = value;
               },
               decoration: InputDecoration(
-                hintText: "相談内容を入力してください",
+                hintText: AppLocalizations.of(context)!.consultation_input_hint,
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
             actions: [
               TextButton(
-                child: Text("キャンセル"),
+                child: Text(AppLocalizations.of(context)!.cancel_button),
                 onPressed: () => Navigator.pop(context),
               ),
               TextButton(
-                child: Text("送信"),
+                child: Text(AppLocalizations.of(context)!.send_button),
                 onPressed: () async {
                   Navigator.pop(context); // ダイアログを閉じる
                   if (userInput.isNotEmpty) {
@@ -647,7 +658,7 @@ class _StatsScreenState extends State<StatsScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("AIの回答",
+          title: Text(AppLocalizations.of(context)!.ai_response_title,
               style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: SingleChildScrollView(
             child: Text(response,
@@ -657,7 +668,7 @@ class _StatsScreenState extends State<StatsScreen> {
           ),
           actions: [
             TextButton(
-              child: Text("閉じる"),
+              child: Text(AppLocalizations.of(context)!.close),
               onPressed: () => Navigator.pop(context),
             ),
           ],
@@ -671,13 +682,14 @@ class _StatsScreenState extends State<StatsScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("エラー",
+          title: Text(AppLocalizations.of(context)!.error,
               style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-          content: Text("AIの回答を取得できませんでした。\n\n$e",
+          content: Text(
+              "${AppLocalizations.of(context)!.ai_response_failed}\n\n$e",
               style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           actions: [
             TextButton(
-              child: Text("閉じる"),
+              child: Text(AppLocalizations.of(context)!.close),
               onPressed: () => Navigator.pop(context),
             ),
           ],
@@ -700,8 +712,15 @@ class _StatsScreenState extends State<StatsScreen> {
       body: json.encode({
         'model': 'gpt-3.5-turbo',
         'messages': [
-          {'role': 'system', 'content': 'あなたは親切で知識豊富なアシスタントです。'},
-          {'role': 'user', 'content': '$question 150文字以内で答えてください。'},
+          {
+            'role': 'system',
+            'content': AppLocalizations.of(context)!.roleHelpfulAssistant
+          },
+          {
+            'role': 'user',
+            'content':
+                '$question ${AppLocalizations.of(context)!.limitCharacters150}'
+          },
         ],
         'max_tokens': 200,
         'temperature': 0.7,
@@ -712,7 +731,7 @@ class _StatsScreenState extends State<StatsScreen> {
       final data = json.decode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'].trim();
     } else {
-      return 'AIの回答取得に失敗しました: ${response.statusCode}';
+      return '${AppLocalizations.of(context)!.ai_response_failed}: ${response.statusCode}';
     }
   }
 
@@ -721,17 +740,17 @@ class _StatsScreenState extends State<StatsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("プレミアムにアップグレード",
+        title: Text(AppLocalizations.of(context)!.upgrade_to_premium,
             style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text("5回の無料利用が終了しました。月額プランをご検討ください。",
+        content: Text(AppLocalizations.of(context)!.free_limit_reached,
             style: TextStyle(color: isDark ? Colors.white : Colors.black)),
         actions: [
           TextButton(
-            child: Text("キャンセル"),
+            child: Text(AppLocalizations.of(context)!.cancel_button),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text("購入"),
+            child: Text(AppLocalizations.of(context)!.purchase),
             onPressed: () {
               Navigator.pop(context);
               monthly.initIAP(); // 課金処理を開始
@@ -740,6 +759,28 @@ class _StatsScreenState extends State<StatsScreen> {
         ],
       ),
     );
+  }
+
+  // カテゴリ名をローカライズするメソッド
+  String? _getCategory(String category) {
+    switch (category) {
+      case '泣いた！':
+        return AppLocalizations.of(context)!.cry;
+      case 'ミルク':
+        return AppLocalizations.of(context)!.milk;
+      case 'おむつ':
+        return AppLocalizations.of(context)!.diaper;
+      case '眠い':
+        return AppLocalizations.of(context)!.sleepy;
+      case '抱っこ':
+        return AppLocalizations.of(context)!.hold;
+      case '不快':
+        return AppLocalizations.of(context)!.uncomfortable;
+      case '体調不良':
+        return AppLocalizations.of(context)!.sick;
+      default:
+        return null;
+    }
   }
 
   @override
@@ -788,10 +829,14 @@ class _StatsScreenState extends State<StatsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildUnitRadio(DisplayUnit.day, '日'),
-                _buildUnitRadio(DisplayUnit.week, '週'),
-                _buildUnitRadio(DisplayUnit.month, '月'),
-                _buildUnitRadio(DisplayUnit.all, '全体'),
+                _buildUnitRadio(
+                    DisplayUnit.day, AppLocalizations.of(context)!.day),
+                _buildUnitRadio(
+                    DisplayUnit.week, AppLocalizations.of(context)!.week),
+                _buildUnitRadio(
+                    DisplayUnit.month, AppLocalizations.of(context)!.month),
+                _buildUnitRadio(
+                    DisplayUnit.all, AppLocalizations.of(context)!.overall),
               ],
             ),
             SizedBox(height: 10),
@@ -812,7 +857,8 @@ class _StatsScreenState extends State<StatsScreen> {
                               PieChartData(
                                 sections: categoryCounts.entries.map((entry) {
                                   return PieChartSectionData(
-                                    title: '${entry.key}\n${entry.value}',
+                                    title:
+                                        '${_getCategory(entry.key)}\n${entry.value}',
                                     value: entry.value.toDouble(),
                                     color: _getCategoryColor(entry.key),
                                     radius: 60,
@@ -827,11 +873,12 @@ class _StatsScreenState extends State<StatsScreen> {
                           ...categoryCounts.entries.map((e) => ListTile(
                                 leading: Icon(_getCategoryIcon(e.key),
                                     color: _getCategoryColor(e.key)),
-                                title: Text(e.key),
-                                trailing: Text('${e.value} 件'),
+                                title: Text(_getCategory(e.key) ?? e.key),
+                                trailing: Text(
+                                    '${e.value} ${AppLocalizations.of(context)!.itemCount}'),
                               )),
                           SizedBox(height: 20),
-                          Text('時間帯ごとの泣く傾向',
+                          Text(AppLocalizations.of(context)!.cryingTrendByTime,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
@@ -929,15 +976,19 @@ class _StatsScreenState extends State<StatsScreen> {
                     ),
             ),
             Text(
-              "AI機能",
+              AppLocalizations.of(context)!.aiFeature,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: isDark ? Colors.white : Colors.black), // タイトルのスタイル
             ),
             const SizedBox(height: 10),
-            Row(spacing: 5, children: [
+            Wrap(spacing: 5, children: [
               ElevatedButton.icon(
                 icon: Icon(Icons.lightbulb),
-                label: Text(AppLocalizations.of(context)!.adviceButton),
+                label: Text(
+                  AppLocalizations.of(context)!.adviceButton,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
                 onPressed: () async {
                   try {
                     Monthly monthly = Monthly();
@@ -996,7 +1047,8 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
               ElevatedButton.icon(
                 icon: Icon(Icons.sentiment_satisfied_alt),
-                label: Text("励まし"),
+                label: Text(AppLocalizations.of(context)!.encouragement,
+                    softWrap: true, overflow: TextOverflow.visible),
                 onPressed: () async {
                   try {
                     Monthly monthly = Monthly();
@@ -1019,7 +1071,8 @@ class _StatsScreenState extends State<StatsScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text("AIからの励まし",
+                          title: Text(
+                              AppLocalizations.of(context)!.encouragementFromAI,
                               style: TextStyle(
                                   color: isDark ? Colors.white : Colors.black)),
                           content: Text(encouragement,
@@ -1027,7 +1080,7 @@ class _StatsScreenState extends State<StatsScreen> {
                                   color: isDark ? Colors.white : Colors.black)),
                           actions: [
                             TextButton(
-                              child: Text("閉じる"),
+                              child: Text(AppLocalizations.of(context)!.close),
                               onPressed: () => Navigator.pop(context),
                             ),
                           ],
@@ -1040,15 +1093,16 @@ class _StatsScreenState extends State<StatsScreen> {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text("エラー",
+                        title: Text(AppLocalizations.of(context)!.error,
                             style: TextStyle(
                                 color: isDark ? Colors.white : Colors.black)),
-                        content: Text("励ましメッセージの取得に失敗しました。\n\n$e",
+                        content: Text(
+                            "${AppLocalizations.of(context)!.encouragement_fetch_error}\n\n$e",
                             style: TextStyle(
                                 color: isDark ? Colors.white : Colors.black)),
                         actions: [
                           TextButton(
-                            child: Text("閉じる"),
+                            child: Text(AppLocalizations.of(context)!.close),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ],
@@ -1059,7 +1113,8 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
               ElevatedButton.icon(
                 icon: Icon(Icons.chat),
-                label: Text("相談"),
+                label: Text(AppLocalizations.of(context)!.consultation,
+                    softWrap: true, overflow: TextOverflow.visible),
                 onPressed: () async {
                   await _showConsultationDialog();
                 },

@@ -139,8 +139,9 @@ class _InputScreenState extends State<InputScreen> {
     });
 
     // スナックバーで追加を通知
+    final logAddedText = AppLocalizations.of(context)!.log_added;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$entry を追加しました')),
+      SnackBar(content: Text('${_getLog(entry)}$logAddedText')),
     );
   }
 
@@ -248,8 +249,9 @@ class _InputScreenState extends State<InputScreen> {
           data[todayKey] = todayLogs;
           await prefs.setString('cry_logs', json.encode(data));
         }
+        final logDeletedText = AppLocalizations.of(context)!.log_deleted;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$log を削除しました')),
+          SnackBar(content: Text('${_getLog(log)}$logDeletedText')),
         );
       },
       child: GestureDetector(
@@ -258,7 +260,7 @@ class _InputScreenState extends State<InputScreen> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text('カテゴリを選択',
+                title: Text(AppLocalizations.of(context)!.select_category,
                     style:
                         TextStyle(color: isDark ? Colors.white : Colors.black)),
                 content: Column(
@@ -266,7 +268,7 @@ class _InputScreenState extends State<InputScreen> {
                   children: _categories.map((cat) {
                     return ListTile(
                       leading: Icon(cat['icon'], color: cat['color']),
-                      title: Text(cat['label']),
+                      title: Text(_getCategory(cat['label']) ?? cat['label']),
                       onTap: () {
                         Navigator.pop(context, cat['label']);
                       },
@@ -308,9 +310,11 @@ class _InputScreenState extends State<InputScreen> {
               _logs = todayLogs;
             });
 
+            final logUpdatedText = AppLocalizations.of(context)!.log_updated;
+
             // スナックバーで追加を通知
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$updatedLog に変更しました')),
+              SnackBar(content: Text('${_getLog(updatedLog)}$logUpdatedText')),
             );
           }
         },
@@ -332,7 +336,7 @@ class _InputScreenState extends State<InputScreen> {
                 color: _getCategoryColor(log),
               ),
               title: Text(
-                log.replaceFirst(RegExp(r'\.\d{3}'), ''),
+                _getLog(log) ?? log,
                 style: TextStyle(fontSize: 16),
               ),
               trailing: IconButton(
@@ -344,6 +348,57 @@ class _InputScreenState extends State<InputScreen> {
         ),
       ),
     );
+  }
+
+  // カテゴリ名をローカライズするメソッド
+  String? _getCategory(String category) {
+    switch (category) {
+      case '泣いた！':
+        return AppLocalizations.of(context)!.cry;
+      case 'ミルク':
+        return AppLocalizations.of(context)!.milk;
+      case 'おむつ':
+        return AppLocalizations.of(context)!.diaper;
+      case '眠い':
+        return AppLocalizations.of(context)!.sleepy;
+      case '抱っこ':
+        return AppLocalizations.of(context)!.hold;
+      case '不快':
+        return AppLocalizations.of(context)!.uncomfortable;
+      case '体調不良':
+        return AppLocalizations.of(context)!.sick;
+      default:
+        return null;
+    }
+  }
+
+  // ログのカテゴリに応じて表示を整形するメソッド
+  // ログの形式: "HH:mm:ss.SSS カテゴリ"
+  String? _getLog(String log) {
+    String category = log.split(" ")[1];
+    String resultLog = "";
+
+    if (category == '泣いた！') {
+      resultLog = log.replaceFirst('泣いた！', AppLocalizations.of(context)!.cry);
+    } else if (category == 'ミルク') {
+      resultLog = log.replaceFirst('ミルク', AppLocalizations.of(context)!.milk);
+    } else if (category == 'おむつ') {
+      resultLog = log.replaceFirst('おむつ', AppLocalizations.of(context)!.diaper);
+    } else if (category == '眠い') {
+      resultLog = log.replaceFirst('眠い', AppLocalizations.of(context)!.sleepy);
+    } else if (category == '抱っこ') {
+      resultLog = log.replaceFirst('抱っこ', AppLocalizations.of(context)!.hold);
+    } else if (category == '不快') {
+      resultLog =
+          log.replaceFirst('不快', AppLocalizations.of(context)!.uncomfortable);
+    } else if (category == '体調不良') {
+      resultLog = log.replaceFirst('体調不良', AppLocalizations.of(context)!.sick);
+    }
+
+    final memoLabel = '[${AppLocalizations.of(context)!.memo}:';
+    return resultLog
+        .replaceFirst(RegExp(r'\.\d{3}'), '')
+        .replaceAll('[メモ:', memoLabel);
   }
 
   // メモ追加ダイアログを表示するメソッド
@@ -364,7 +419,7 @@ class _InputScreenState extends State<InputScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('メモを編集',
+          title: Text(AppLocalizations.of(context)!.edit_memo,
               style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: TextField(
             controller:
@@ -373,18 +428,18 @@ class _InputScreenState extends State<InputScreen> {
               memo = value;
             },
             decoration: InputDecoration(
-              hintText: 'メモを入力してください',
+              hintText: AppLocalizations.of(context)!.enter_memo,
               border: OutlineInputBorder(),
             ),
             maxLines: 3,
           ),
           actions: [
             TextButton(
-              child: Text('キャンセル'),
+              child: Text(AppLocalizations.of(context)!.cancel_button),
               onPressed: () => Navigator.pop(context),
             ),
             TextButton(
-              child: Text('保存'),
+              child: Text(AppLocalizations.of(context)!.save_button),
               onPressed: () async {
                 if (memo.isNotEmpty) {
                   await _saveMemo(index, memo);
@@ -433,9 +488,11 @@ class _InputScreenState extends State<InputScreen> {
         _logs = todayLogs;
       });
 
+      final savedMemoText = AppLocalizations.of(context)!.saved_memo;
+
       // スナックバーで追加を通知
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$log にメモを保存しました')),
+        SnackBar(content: Text('${_getLog(log)}$savedMemoText')),
       );
     }
   }
@@ -468,7 +525,7 @@ class _InputScreenState extends State<InputScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
-              '子どもが泣いた時に「泣いた！」ボタンを押してください。\n',
+              AppLocalizations.of(context)!.cry_instruction,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -488,7 +545,7 @@ class _InputScreenState extends State<InputScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: Text(
-                '泣いた！',
+                AppLocalizations.of(context)!.cry,
                 style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
@@ -498,8 +555,7 @@ class _InputScreenState extends State<InputScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
-              '落ち着いたらカテゴリを選んでください。\n'
-              '「泣いた！」のままでも大丈夫です。',
+              AppLocalizations.of(context)!.cry_note,
               style: TextStyle(
                   fontSize: 16, color: isDark ? Colors.white : Colors.black),
               textAlign: TextAlign.center,

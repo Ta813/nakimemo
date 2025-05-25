@@ -161,24 +161,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('カレンダー画面ヘルプ',
+          title: Text(AppLocalizations.of(context)!.calendar_help_title,
               style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: SingleChildScrollView(
             child: ListBody(
               children: [
-                Text('・カレンダーの日付をタップすると、その日の記録が表示されます。',
+                Text(AppLocalizations.of(context)!.calendar_help_1,
                     style:
                         TextStyle(color: isDark ? Colors.white : Colors.black)),
-                Text('・記録の横のアイコンはカテゴリを示しています。',
+                Text(AppLocalizations.of(context)!.calendar_help_2,
                     style:
                         TextStyle(color: isDark ? Colors.white : Colors.black)),
-                Text('・記録をタップするとカテゴリを編集できます。',
+                Text(AppLocalizations.of(context)!.calendar_help_3,
                     style:
                         TextStyle(color: isDark ? Colors.white : Colors.black)),
-                Text('・記録をスワイプすると削除できます。',
+                Text(AppLocalizations.of(context)!.calendar_help_4,
                     style:
                         TextStyle(color: isDark ? Colors.white : Colors.black)),
-                Text('・日付の下に丸いマーカーが表示されている日は、記録が存在する日です。',
+                Text(AppLocalizations.of(context)!.calendar_help_5,
                     style:
                         TextStyle(color: isDark ? Colors.white : Colors.black)),
               ],
@@ -201,13 +201,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final isHovered = _hoveredIndexes.contains(index); // カーソルが当たっているかを判定
     final themeColor = Theme.of(context).colorScheme.primary; // 現在のテーマの色を取得
 
+    final logDeletedText = AppLocalizations.of(context)!.log_deleted;
+
     return Dismissible(
       key: Key(log + index.toString()),
       background: Container(color: Colors.red),
       onDismissed: (direction) async {
         await _removeEvent(index);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$log を削除しました')),
+          SnackBar(content: Text('${_getLog(log)}$logDeletedText')),
         );
       },
       child: Container(
@@ -228,11 +230,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               color: _getCategoryColor(log),
             ),
             title: Text(
-              log.replaceFirst(RegExp(r'\.\d{3}'), ''),
+              _getLog(log) ?? log,
             ),
             trailing: IconButton(
               icon: Icon(Icons.note_add),
-              tooltip: 'メモを追加',
+              tooltip: AppLocalizations.of(context)!.edit_memo,
               onPressed: () => _showMemoDialog(index), // メモ追加ダイアログを表示
             ),
             onTap: () async {
@@ -249,7 +251,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       children: _categories.map((cat) {
                         return ListTile(
                           leading: Icon(cat['icon'], color: cat['color']),
-                          title: Text(cat['label']),
+                          title:
+                              Text(_getCategory(cat['label']) ?? cat['label']),
                           onTap: () {
                             Navigator.pop(context, cat['label']);
                           },
@@ -287,9 +290,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   );
                 });
 
+                final logUpdatedText =
+                    AppLocalizations.of(context)!.log_updated;
+
                 // スナックバーでカテゴリ変更を通知
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$updatedLog に変更しました')),
+                  SnackBar(
+                      content: Text('${_getLog(updatedLog)}$logUpdatedText')),
                 );
               }
             },
@@ -297,6 +304,57 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
       ),
     );
+  }
+
+  // カテゴリ名をローカライズするメソッド
+  String? _getCategory(String category) {
+    switch (category) {
+      case '泣いた！':
+        return AppLocalizations.of(context)!.cry;
+      case 'ミルク':
+        return AppLocalizations.of(context)!.milk;
+      case 'おむつ':
+        return AppLocalizations.of(context)!.diaper;
+      case '眠い':
+        return AppLocalizations.of(context)!.sleepy;
+      case '抱っこ':
+        return AppLocalizations.of(context)!.hold;
+      case '不快':
+        return AppLocalizations.of(context)!.uncomfortable;
+      case '体調不良':
+        return AppLocalizations.of(context)!.sick;
+      default:
+        return null;
+    }
+  }
+
+  // ログのカテゴリに応じて表示を整形するメソッド
+  // ログの形式: "HH:mm:ss.SSS カテゴリ"
+  String? _getLog(String log) {
+    String category = log.split(" ")[1];
+    String resultLog = "";
+
+    if (category == '泣いた！') {
+      resultLog = log.replaceFirst('泣いた！', AppLocalizations.of(context)!.cry);
+    } else if (category == 'ミルク') {
+      resultLog = log.replaceFirst('ミルク', AppLocalizations.of(context)!.milk);
+    } else if (category == 'おむつ') {
+      resultLog = log.replaceFirst('おむつ', AppLocalizations.of(context)!.diaper);
+    } else if (category == '眠い') {
+      resultLog = log.replaceFirst('眠い', AppLocalizations.of(context)!.sleepy);
+    } else if (category == '抱っこ') {
+      resultLog = log.replaceFirst('抱っこ', AppLocalizations.of(context)!.hold);
+    } else if (category == '不快') {
+      resultLog =
+          log.replaceFirst('不快', AppLocalizations.of(context)!.uncomfortable);
+    } else if (category == '体調不良') {
+      resultLog = log.replaceFirst('体調不良', AppLocalizations.of(context)!.sick);
+    }
+
+    final memoLabel = '[${AppLocalizations.of(context)!.memo}:';
+    return resultLog
+        .replaceFirst(RegExp(r'\.\d{3}'), '')
+        .replaceAll('[メモ:', memoLabel);
   }
 
   // 記録を追加するダイアログを表示
@@ -310,7 +368,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('記録を追加',
+              title: Text(AppLocalizations.of(context)!.add_record,
                   style:
                       TextStyle(color: isDark ? Colors.white : Colors.black)),
               content: Column(
@@ -318,7 +376,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 children: [
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(
-                      labelText: 'カテゴリを選択',
+                      labelText: AppLocalizations.of(context)!.select_category,
                       border: OutlineInputBorder(),
                     ),
                     items: _categories.map<DropdownMenuItem<String>>((cat) {
@@ -328,7 +386,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           children: [
                             Icon(cat['icon'], color: cat['color']),
                             SizedBox(width: 8),
-                            Text(cat['label']),
+                            Text(_getCategory(cat['label']) ?? cat['label']),
                           ],
                         ),
                       );
@@ -350,18 +408,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         });
                       }
                     },
-                    child:
-                        Text('時間を選択: ${selectedTime?.format(context) ?? ''}'),
+                    child: Text(
+                        '${AppLocalizations.of(context)!.select_time} ${selectedTime?.format(context) ?? ''}'),
                   ),
                 ],
               ),
               actions: [
                 TextButton(
-                  child: Text('キャンセル'),
+                  child: Text(AppLocalizations.of(context)!.cancel_button),
                   onPressed: () => Navigator.pop(context),
                 ),
                 TextButton(
-                  child: Text('追加'),
+                  child: Text(AppLocalizations.of(context)!.add_button),
                   onPressed: () {
                     final now = DateTime.now();
                     final inputTime = DateTime(
@@ -373,7 +431,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     );
 
                     if (inputTime.isAfter(now)) {
-                      _showError(context, "未来の時刻は記録できません");
+                      _showError(context,
+                          AppLocalizations.of(context)!.future_time_error);
                       return;
                     }
 
@@ -403,12 +462,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('エラー'),
+        title: Text(AppLocalizations.of(context)!.error),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
+            child: Text(AppLocalizations.of(context)!.ok),
           ),
         ],
       ),
@@ -453,8 +512,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
 
     // スナックバーで追加を通知
+    final logAddedText = AppLocalizations.of(context)!.log_added;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$log を追加しました')),
+      SnackBar(content: Text('${_getLog(log)}$logAddedText')),
     );
   }
 
@@ -476,7 +536,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('メモを編集',
+          title: Text(AppLocalizations.of(context)!.edit_memo,
               style: TextStyle(color: isDark ? Colors.white : Colors.black)),
           content: TextField(
             controller:
@@ -485,18 +545,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
               memo = value;
             },
             decoration: InputDecoration(
-              hintText: 'メモを入力してください',
+              hintText: AppLocalizations.of(context)!.enter_memo,
               border: OutlineInputBorder(),
             ),
             maxLines: 3,
           ),
           actions: [
             TextButton(
-              child: Text('キャンセル'),
+              child: Text(AppLocalizations.of(context)!.cancel_button),
               onPressed: () => Navigator.pop(context),
             ),
             TextButton(
-              child: Text('保存'),
+              child: Text(AppLocalizations.of(context)!.save_button),
               onPressed: () async {
                 if (memo.isNotEmpty) {
                   await _saveMemo(index, memo);
@@ -540,9 +600,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
       });
 
+      final savedMemoText = AppLocalizations.of(context)!.saved_memo;
+
       // スナックバーで追加を通知
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$log にメモを保存しました')),
+        SnackBar(content: Text('${_getLog(log)}$savedMemoText')),
       );
     }
   }
@@ -574,6 +636,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 Container(
                   height: 340, // 任意の高さ
                   child: TableCalendar(
+                    locale: Localizations.localeOf(context).languageCode,
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
                     focusedDay: _focusedDay,
@@ -600,7 +663,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
           // 上からかぶさるリスト
           DraggableScrollableSheet(
-            initialChildSize: 0.3,
+            initialChildSize: 0.4,
             minChildSize: 0.2,
             maxChildSize: 0.9,
             builder: (context, scrollController) {
@@ -633,7 +696,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         child: IconButton(
                           icon: Icon(Icons.add),
-                          tooltip: '追加',
+                          tooltip: AppLocalizations.of(context)!.add_button,
                           onPressed: _showAddLogDialog,
                         ),
                       ),
