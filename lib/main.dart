@@ -1,7 +1,5 @@
 ﻿// ignore_for_file: deprecated_member_use
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:nakimemo/screens/intro_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +20,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'setting/monthly.dart';
 import 'setting/font_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase/firebase_common.dart';
+import 'screens/auth_screen.dart';
 
 bool _isFirstLaunch = true;
 Future<void> main() async {
@@ -30,7 +33,12 @@ Future<void> main() async {
 
     final prefs = await SharedPreferences.getInstance();
     _isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
-    final font = prefs.getString('selectedFont') ?? 'Roboto';
+    final font = prefs.getString('selectedFont') ?? 'Mochiy Pop One';
+
+    //firebase初期化
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     if (!kIsWeb) {
       await dotenv.load();
@@ -66,17 +74,17 @@ void interactiveCallback(dynamic uri) async {
     final timeStr = lastCryTime.split(' ')[1];
     final entry = '$timeStr 泣いた！';
 
-    await SharedPreferences.getInstance();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final raw = prefs.getString('cry_logs') ?? '{}';
-    final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = lastCryTime.split(' ')[0];
-    final todayLogs = List<String>.from(data[todayKey] ?? []);
+
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    //firebaseからデータを取得
+    List<String> todayLogs =
+        await firebaseCommon.loadLogsFromFirestore(todayKey);
+
     todayLogs.add(entry);
 
-    data[todayKey] = todayLogs;
-    await prefs.setString('cry_logs', json.encode(data));
+    //firebaseにデータを保存
+    await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
   }
 }
 
@@ -125,8 +133,31 @@ class MyApp extends StatelessWidget {
           theme: appThemeData[themeProvider.theme]!.copyWith(
             textTheme: GoogleFonts.getTextTheme(fontProvider.selectedFont),
           ),
-          home: _isFirstLaunch ? IntroScreen() : HomePage(),
+          home: AuthGate(),
         );
+      },
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // Firebase接続中
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        // 未ログイン → 認証画面へ
+        if (!snapshot.hasData) {
+          return AuthScreen(); // 認証画面（後述）
+        }
+
+        // ログイン済み → メイン画面へ
+        return _isFirstLaunch ? IntroScreen() : HomePage(); // あなたのトップ画面
       },
     );
   }

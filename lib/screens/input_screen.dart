@@ -1,14 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // 時刻整形に使用
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../firebase/firebase_common.dart';
 
 class InputScreen extends StatefulWidget {
   @override
@@ -75,16 +74,15 @@ class _InputScreenState extends State<InputScreen> {
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
-  // 今日のログをSharedPreferencesから取得
+  // 今日のログをfirebaseから取得
   // 取得したログは降順にソートして表示
   Future<void> _loadTodayLogs() async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final raw = prefs.getString('cry_logs') ?? '{}';
-    final data = json.decode(raw) as Map<String, dynamic>;
     final todayKey = _getTodayKey();
-    final todayLogs = List<String>.from(data[todayKey] ?? []);
+
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    //firebaseからデータを取得
+    List<String> todayLogs =
+        await firebaseCommon.loadLogsFromFirestore(todayKey);
 
     todayLogs.sort((a, b) {
       final timeA = a.split(' ').first;
@@ -104,17 +102,18 @@ class _InputScreenState extends State<InputScreen> {
     final timeStr = DateFormat('HH:mm:ss.SSS').format(now);
     final entry = '$timeStr $category';
 
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final raw = prefs.getString('cry_logs') ?? '{}';
-    final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = _getTodayKey();
-    final todayLogs = List<String>.from(data[todayKey] ?? []);
+
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    //firebaseからデータを取得
+    List<String> todayLogs =
+        await firebaseCommon.loadLogsFromFirestore(todayKey);
+
     todayLogs.add(entry);
 
-    data[todayKey] = todayLogs;
-    await prefs.setString('cry_logs', json.encode(data));
+    //firebaseにデータを保存
+    await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
+
     if (!kIsWeb) {
       await HomeWidget.saveWidgetData(
           'last_cry_time', todayKey + ' ' + timeStr);
@@ -229,13 +228,13 @@ class _InputScreenState extends State<InputScreen> {
         });
 
         // 永続ストレージからも削除
-        await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.reload();
-        final raw = prefs.getString('cry_logs') ?? '{}';
-        final data = Map<String, dynamic>.from(json.decode(raw));
         final todayKey = _getTodayKey();
-        final todayLogs = List<String>.from(data[todayKey] ?? []);
+
+        FirebaseCommon firebaseCommon = new FirebaseCommon();
+        //firebaseからデータを取得
+        List<String> todayLogs =
+            await firebaseCommon.loadLogsFromFirestore(todayKey);
+
         if (index >= 0 && index < todayLogs.length) {
           todayLogs.removeAt(index);
 
@@ -246,8 +245,8 @@ class _InputScreenState extends State<InputScreen> {
             return timeB.compareTo(timeA); // 降順
           });
 
-          data[todayKey] = todayLogs;
-          await prefs.setString('cry_logs', json.encode(data));
+          //firebaseにデータを保存
+          await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
         }
         final logDeletedText = AppLocalizations.of(context)!.log_deleted;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -288,13 +287,13 @@ class _InputScreenState extends State<InputScreen> {
           if (selectedCategory != null) {
             final timeStr = log.split(" ")[0]; // 時刻部分を取得
             final updatedLog = '$timeStr $selectedCategory';
-            await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.reload();
-            final raw = prefs.getString('cry_logs') ?? '{}';
-            final data = Map<String, dynamic>.from(json.decode(raw));
+
             final todayKey = _getTodayKey();
-            final todayLogs = List<String>.from(data[todayKey] ?? []);
+            FirebaseCommon firebaseCommon = new FirebaseCommon();
+            //firebaseからデータを取得
+            List<String> todayLogs =
+                await firebaseCommon.loadLogsFromFirestore(todayKey);
+
             todayLogs[index] = updatedLog;
 
             // リストを降順にソート
@@ -304,8 +303,9 @@ class _InputScreenState extends State<InputScreen> {
               return timeB.compareTo(timeA); // 降順
             });
 
-            data[todayKey] = todayLogs;
-            await prefs.setString('cry_logs', json.encode(data));
+            //firebaseにデータを保存
+            await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
+
             setState(() {
               _logs = todayLogs;
             });
@@ -455,13 +455,12 @@ class _InputScreenState extends State<InputScreen> {
 
   // メモを保存するメソッド
   Future<void> _saveMemo(int index, String memo) async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final raw = prefs.getString('cry_logs') ?? '{}';
-    final data = Map<String, dynamic>.from(json.decode(raw));
     final todayKey = _getTodayKey();
-    final todayLogs = List<String>.from(data[todayKey] ?? []);
+
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    //firebaseからデータを取得
+    List<String> todayLogs =
+        await firebaseCommon.loadLogsFromFirestore(todayKey);
 
     if (index >= 0 && index < todayLogs.length) {
       // リストを降順にソート
@@ -481,8 +480,8 @@ class _InputScreenState extends State<InputScreen> {
 
       todayLogs[index] = updatedLog;
 
-      data[todayKey] = todayLogs;
-      await prefs.setString('cry_logs', json.encode(data));
+      //firebaseにデータを保存
+      await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
 
       setState(() {
         _logs = todayLogs;

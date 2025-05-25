@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "614818042746",
+    "project_id": "kotoapp-a3097",
+    "storage_bucket": "kotoapp-a3097.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614818042746:android:207bed1422888f25bc3cc3",
+        "android_client_info": {
+          "package_name": "com.example.nakimemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "614818042746-tmnbisrji4ijcfd4acjqrc5ao33hsof1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nakimemo",
+            "certificate_hash": "4c2e85636dcc236baa4d327af75e2733115a8d44"
+          }
+        },
+        {
+          "client_id": "614818042746-uks57trjpd5l090ls4tv99pkoga4lkl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5t9dw5RV2ihXRAkPNmvqjH_sWrAeOhVc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "614818042746-uks57trjpd5l090ls4tv99pkoga4lkl6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

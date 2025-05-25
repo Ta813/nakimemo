@@ -2,12 +2,14 @@
     package="com.example.nakimemo">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:enableOnBackInvokedCallback="true"
         android:label="nakimemo"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:hardwareAccelerated="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

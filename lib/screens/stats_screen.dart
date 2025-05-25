@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,6 +10,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../setting/monthly.dart';
+import '../firebase/firebase_common.dart';
 
 class StatsScreen extends StatefulWidget {
   @override
@@ -82,13 +82,10 @@ class _StatsScreenState extends State<StatsScreen> {
   /// ログを全て読み込む
   /// [key] : YYYY-MM形式の文字列
   Future<Map<String, List<String>>> _loadAllLogs() async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final rawData = prefs.getString('cry_logs') ?? '{}';
-    final Map<String, dynamic> jsonData = json.decode(rawData);
-    return jsonData
-        .map((key, value) => MapEntry(key, List<String>.from(value)));
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+
+    //firebaseからデータを取得
+    return await firebaseCommon.getAllLogs();
   }
 
   /// 月ごとのカテゴリ別の件数を取得する

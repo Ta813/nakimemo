@@ -1,15 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../firebase/firebase_common.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -75,13 +73,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // SharedPreferencesからイベントを読み込む
   Future<void> _loadEvents() async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final rawData = prefs.getString('cry_logs') ?? '{}';
+    //firebaseからデータを取得
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    final rawData = await firebaseCommon.getAllLogs();
+
     setState(() {
       _eventMap = Map<String, List<String>>.from(
-        (json.decode(rawData) as Map).map(
+        (rawData as Map).map(
           (key, value) => MapEntry(key, List<String>.from(value)),
         ),
       );
@@ -133,9 +131,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // イベントを削除する
   Future<void> _removeEvent(int index) async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+
     final key = _formatDate(_selectedDay!);
     final events = List<String>.from(_eventMap[key]!);
 
@@ -147,11 +144,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     if (events.isEmpty) {
       _eventMap.remove(key);
-      await prefs.remove('cry_logs');
-      await prefs.setString('cry_logs', json.encode(_eventMap));
+      //firebaseにデータを保存
+      await firebaseCommon.saveLogToFirestore(key, events);
     } else {
       _eventMap[key] = events;
-      await prefs.setString('cry_logs', json.encode(_eventMap));
+      //firebaseにデータを保存
+      await firebaseCommon.saveLogToFirestore(key, events);
     }
   }
 
@@ -273,21 +271,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
               if (selectedCategory != null) {
                 final timeStr = log.split(" ")[0]; // 時刻部分を取得
                 final updatedLog = '$timeStr $selectedCategory';
-                await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.reload();
-                final raw = prefs.getString('cry_logs') ?? '{}';
-                final data = Map<String, dynamic>.from(json.decode(raw));
                 final selectedDay = _formatDate(_selectedDay!);
-                final selectedLogs = List<String>.from(data[selectedDay] ?? []);
+
+                FirebaseCommon firebaseCommon = new FirebaseCommon();
+                //firebaseからデータを取得
+                List<String> selectedLogs =
+                    await firebaseCommon.loadLogsFromFirestore(selectedDay);
+
+                // 時間の昇順でソート
+                selectedLogs.sort((a, b) {
+                  final timeA = a.split(' ').first; // "HH:mm" 部分を取得
+                  final timeB = b.split(' ').first;
+                  return timeA.compareTo(timeB); // 時間を文字列として比較
+                });
+
                 selectedLogs[index] = updatedLog;
 
-                data[selectedDay] = selectedLogs;
-                await prefs.setString('cry_logs', json.encode(data));
+                //firebaseにデータを保存
+                await firebaseCommon.saveLogToFirestore(
+                    selectedDay, selectedLogs);
+
                 setState(() {
-                  _eventMap = data.map(
-                    (k, v) => MapEntry(k, List<String>.from(v)),
-                  );
+                  _eventMap[selectedDay] = selectedLogs;
                 });
 
                 final logUpdatedText =
@@ -476,18 +481,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // 選択された日にログを追加
   Future<void> _addLogToSelectedDate(String log, DateTime date) async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final rawData = prefs.getString('cry_logs') ?? '{}';
-    final data = Map<String, dynamic>.from(json.decode(rawData));
-
     final key = _formatDate(date);
-    final dayLogs = List<String>.from(data[key] ?? []);
-    dayLogs.add(log);
-    data[key] = dayLogs;
 
-    await prefs.setString('cry_logs', json.encode(data));
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    //firebaseからデータを取得
+    List<String> dayLogs = await firebaseCommon.loadLogsFromFirestore(key);
+
+    dayLogs.add(log);
+
+    //firebaseにデータを保存
+    await firebaseCommon.saveLogToFirestore(key, dayLogs);
 
     // 時間の昇順でソート
     dayLogs.sort((a, b) {
@@ -497,9 +500,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
 
     setState(() {
-      _eventMap = data.map(
-        (k, v) => MapEntry(k, List<String>.from(v)),
-      );
+      _eventMap[key] = dayLogs;
       _hoveredIndexes.add(dayLogs.indexOf(log)); // 新規追加された行を追跡
     });
 
@@ -572,13 +573,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // メモを保存する
   Future<void> _saveMemo(int index, String memo) async {
-    await SharedPreferences.getInstance(); // 1回目（キャッシュクリア用）
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final rawData = prefs.getString('cry_logs') ?? '{}';
-    final data = Map<String, dynamic>.from(json.decode(rawData));
     final key = _formatDate(_selectedDay!);
-    final dayLogs = List<String>.from(data[key] ?? []);
+
+    FirebaseCommon firebaseCommon = new FirebaseCommon();
+    //firebaseからデータを取得
+    List<String> dayLogs = await firebaseCommon.loadLogsFromFirestore(key);
 
     if (index >= 0 && index < dayLogs.length) {
       final log = dayLogs[index];
@@ -589,15 +588,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ? log.replaceFirst(RegExp(r'\[メモ:.*?\]'), '[メモ: $sanitizedMemo]')
           : '$log [メモ: $sanitizedMemo]';
 
+      // 時間の昇順でソート
+      dayLogs.sort((a, b) {
+        final timeA = a.split(' ').first; // "HH:mm" 部分を取得
+        final timeB = b.split(' ').first;
+        return timeA.compareTo(timeB); // 時間を文字列として比較
+      });
+
       dayLogs[index] = updatedLog;
 
-      data[key] = dayLogs;
-      await prefs.setString('cry_logs', json.encode(data));
+      //firebaseにデータを保存
+      await firebaseCommon.saveLogToFirestore(key, dayLogs);
 
       setState(() {
-        _eventMap = data.map(
-          (k, v) => MapEntry(k, List<String>.from(v)),
-        );
+        _eventMap[key] = dayLogs;
       });
 
       final savedMemoText = AppLocalizations.of(context)!.saved_memo;
