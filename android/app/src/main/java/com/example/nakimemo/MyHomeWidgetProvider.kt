@@ -22,6 +22,16 @@ class MyHomeWidgetProvider : HomeWidgetProvider() {
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
             Log.d("MyHomeWidgetProvider.onReceive", "uri: " + intent.getStringExtra("uri"))
             
+            if (intent.action == "com.example.nakimemo.ACTION_NOTIFY_IF_NEEDED") {
+                val lastOp = getLastOperationTime(context)
+                val now = System.currentTimeMillis()
+                val oneHour = 60 * 60 * 1000L
+
+                if (now - lastOp >= oneHour) {
+                    showCryNotification(context)
+                }
+            }
+
             if (intent.getStringExtra("uri") == "myapp://cry") {
                 // ボタンが押されたときの処理
                 val now = java.text.SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS", java.util.Locale.getDefault()).format(java.util.Date())
@@ -119,5 +129,10 @@ class MyHomeWidgetProvider : HomeWidgetProvider() {
             .build()
 
         notificationManager.notify(1001, notification)
+    }
+
+    fun getLastOperationTime(context: Context): Long {
+        val prefs = context.getSharedPreferences("nakimemo_prefs", Context.MODE_PRIVATE)
+        return prefs.getLong("last_operation_time", 0L)
     }
 }

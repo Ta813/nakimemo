@@ -634,7 +634,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: Column(
               children: [
                 Container(
-                  height: 340, // 任意の高さ
+                  height: 392, // 任意の高さ
                   child: TableCalendar(
                     locale: Localizations.localeOf(context).languageCode,
                     firstDay: DateTime.utc(2020, 1, 1),
@@ -663,7 +663,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
           // 上からかぶさるリスト
           DraggableScrollableSheet(
-            initialChildSize: 0.4,
+            initialChildSize: 0.3,
             minChildSize: 0.2,
             maxChildSize: 0.9,
             builder: (context, scrollController) {

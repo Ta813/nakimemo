@@ -30,7 +30,7 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        MyHomeWidgetProvider().showCryNotification(this)
+        saveLastOperationTime(this)
         setAlarm()
     }
 
@@ -38,7 +38,7 @@ class MainActivity : FlutterActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // 許可されたら通知を出す
-            MyHomeWidgetProvider().showCryNotification(this)
+            saveLastOperationTime(this)
             setAlarm()
         }
     }
@@ -60,5 +60,15 @@ class MainActivity : FlutterActivity() {
             intervalMillis,
             pendingIntent
         )
+    }
+    
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        saveLastOperationTime(this)
+    }
+
+    fun saveLastOperationTime(context: Context) {
+        val prefs = context.getSharedPreferences("nakimemo_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putLong("last_operation_time", System.currentTimeMillis()).apply()
     }
 }
