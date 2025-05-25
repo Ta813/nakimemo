@@ -30,7 +30,7 @@ dependencies:
   intro_slider: ^3.0.10
   in_app_purchase: ^3.1.5
   google_fonts: ^4.0.4
-  firebase_core: ^2.27.0
+  firebase_core: ^2.24.0
   cloud_firestore: ^4.13.0
   firebase_auth: ^4.16.0
   google_sign_in: ^6.2.1
@@ -46,6 +46,7 @@ flutter:
   - lib/assets/intro4.png
   - lib/assets/intro5.png
   - lib/assets/intro6.png
+  - lib/assets/google_logo.png
 
 flutter_icons:
   android: true

@@ -25,6 +25,7 @@ import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase/firebase_common.dart';
 import 'screens/auth_screen.dart';
+import 'screens/user_screen.dart';
 
 bool _isFirstLaunch = true;
 Future<void> main() async {
@@ -76,15 +77,27 @@ void interactiveCallback(dynamic uri) async {
 
     final todayKey = lastCryTime.split(' ')[0];
 
-    FirebaseCommon firebaseCommon = new FirebaseCommon();
-    //firebaseからデータを取得
-    List<String> todayLogs =
-        await firebaseCommon.loadLogsFromFirestore(todayKey);
+    try {
+      //firebase初期化
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
-    todayLogs.add(entry);
+      FirebaseCommon firebaseCommon = new FirebaseCommon();
+      //firebaseからデータを取得
+      List<String> todayLogs =
+          await firebaseCommon.loadLogsFromFirestore(todayKey);
 
-    //firebaseにデータを保存
-    await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
+      todayLogs.add(entry);
+
+      //firebaseにデータを保存
+      await firebaseCommon.saveLogToFirestore(todayKey, todayLogs);
+
+      print('Entry saved to Firestore: $entry');
+    } catch (e, stack) {
+      print('Error saving log to Firestore: $e');
+      print(stack);
+    }
   }
 }
 
@@ -176,6 +189,7 @@ class _HomePageState extends State<HomePage> {
     CalendarScreen(),
     StatsScreen(), // 統計画面
     SettingsScreen(), // 設定画面
+    UserScreen(), //ユーザ情報画面
   ];
 
   void _onItemTapped(int index) {
@@ -208,6 +222,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: AppLocalizations.of(context)!.setting_label,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "ユーザ情報",
           ),
         ],
       ),
