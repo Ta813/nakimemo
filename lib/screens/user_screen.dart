@@ -2,10 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../main.dart';
+import '../setting/monthly.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class UserScreen extends StatelessWidget {
+class UserScreen extends StatefulWidget {
+  @override
+  _UserScreenState createState() => _UserScreenState();
+}
+
+class _UserScreenState extends State<UserScreen> {
+  bool isDark = false; // ダークモードの状態を管理
+  Monthly monthly = Monthly();
+
+  Future<void> _showSubscribedDialog(Monthly monthly) async {
+    // ダイアログで課金を促す
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.upgrade_to_premium,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        content: Text(AppLocalizations.of(context)!.free_limit_reached,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        actions: [
+          TextButton(
+            child: Text(AppLocalizations.of(context)!.cancel_button),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: Text(AppLocalizations.of(context)!.purchase),
+            onPressed: () {
+              Navigator.pop(context);
+              monthly.initIAP(); // 課金処理を開始
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    isDark = Theme.of(context).brightness == Brightness.dark;
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -18,6 +55,11 @@ class UserScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('メールアドレス: ${user?.email ?? "ゲスト（ログインなし）"}'),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () => _showSubscribedDialog(monthly),
+              child: Text('プレミアムにアップグレード'),
+            ),
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {

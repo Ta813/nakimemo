@@ -1,4 +1,4 @@
-package com.example.nakimemo
+package com.kotoapp.nakimemo
 
 import io.flutter.embedding.android.FlutterActivity
 import android.os.Bundle
@@ -46,7 +46,7 @@ class MainActivity : FlutterActivity() {
     private fun setAlarm() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, MyHomeWidgetProvider::class.java).apply {
-            action = "com.example.nakimemo.ACTION_NOTIFY_IF_NEEDED"
+            action = "com.kotoapp.nakimemo.ACTION_NOTIFY_IF_NEEDED"
         }
         val pendingIntent = PendingIntent.getBroadcast(
             this, 2, intent,

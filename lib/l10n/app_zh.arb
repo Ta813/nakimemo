@@ -107,7 +107,7 @@
   "ai_response_title": "AI的回答",
   "ai_response_failed": "无法获取AI的回答",
   "upgrade_to_premium": "升级为高级版",
-  "free_limit_reached": "您已使用完5次免费请求，请考虑订阅月度计划。",
+  "free_limit_reached": "使用 AI 功能每 5 次无需观看广告。\n\n订阅月费（1 美元）即可无限制无广告使用。",
   "day": "日",
   "week": "周",
   "month": "月",

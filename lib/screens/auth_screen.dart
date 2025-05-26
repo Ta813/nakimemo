@@ -25,6 +25,15 @@ class _AuthScreenState extends State<AuthScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        // ユーザーにはメール認証を促す
+        setState(() {
+          _errorMessage = 'メールアドレスが未確認です。確認リンクをチェックしてください。';
+        });
+        await user.sendEmailVerification(); // 必要なら再送信
+        return;
+      }
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message;
@@ -147,6 +156,88 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  // ダイアログでパスワードリセット
+  Future<void> _showForgotPasswordDialog() async {
+    final emailController = TextEditingController();
+    String? errorMessage;
+    bool isLoading = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('パスワードをリセット'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: '登録済みのメールアドレス',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (errorMessage != null)
+                    Text(
+                      errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('キャンセル'),
+                ),
+                ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            isLoading = true;
+                            errorMessage = null;
+                          });
+
+                          try {
+                            await FirebaseAuth.instance.sendPasswordResetEmail(
+                              email: emailController.text.trim(),
+                            );
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('再設定メールを送信しました'),
+                                ),
+                              );
+                            }
+                          } on FirebaseAuthException catch (e) {
+                            setState(() {
+                              errorMessage = e.message;
+                            });
+                          } finally {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }
+                        },
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('送信'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,6 +282,10 @@ class _AuthScreenState extends State<AuthScreen> {
                             onPressed: _submit,
                             child: Text('ログイン'),
                           ),
+                        TextButton(
+                          onPressed: _showForgotPasswordDialog,
+                          child: Text('パスワードをお忘れですか？'),
+                        ),
                         TextButton(
                           onPressed: _showSignUpDialog,
                           child: Text('アカウントを作成する'),

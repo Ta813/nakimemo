@@ -1,4 +1,4 @@
-package com.example.nakimemo
+package com.kotoapp.nakimemo
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,7 @@ import android.appwidget.AppWidgetManager
 import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.SharedPreferences
-import com.example.nakimemo.R
+import com.kotoapp.nakimemo.R
 import es.antonborri.home_widget.HomeWidgetProvider
 import es.antonborri.home_widget.HomeWidgetBackgroundService
 import android.util.Log
@@ -22,7 +22,7 @@ class MyHomeWidgetProvider : HomeWidgetProvider() {
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
             Log.d("MyHomeWidgetProvider.onReceive", "uri: " + intent.getStringExtra("uri"))
             
-            if (intent.action == "com.example.nakimemo.ACTION_NOTIFY_IF_NEEDED") {
+            if (intent.action == "com.kotoapp.nakimemo.ACTION_NOTIFY_IF_NEEDED") {
                 val lastOp = getLastOperationTime(context)
                 val now = System.currentTimeMillis()
                 val oneHour = 60 * 60 * 1000L

@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:614818042746:android:207bed1422888f25bc3cc3",
+        "mobilesdk_app_id": "1:614818042746:android:75af0e8b4b30e6cebc3cc3",
         "android_client_info": {
-          "package_name": "com.example.nakimemo"
+          "package_name": "com.kotoapp.nakimemo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "614818042746-tmnbisrji4ijcfd4acjqrc5ao33hsof1.apps.googleusercontent.com",
+          "client_id": "614818042746-39n4h479n25j6dqao9qdai8ov7dn3kas.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.nakimemo",
-            "certificate_hash": "4c2e85636dcc236baa4d327af75e2733115a8d44"
+            "package_name": "com.kotoapp.nakimemo",
+            "certificate_hash": "955e9e8ef21df38edcea7aad0dd2363d7c6642d8"
           }
         },
         {

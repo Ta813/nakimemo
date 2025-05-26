@@ -11,6 +11,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../setting/monthly.dart';
 import '../firebase/firebase_common.dart';
+import '../setting/rewarded_ad_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StatsScreen extends StatefulWidget {
   @override
@@ -33,6 +35,8 @@ class _StatsScreenState extends State<StatsScreen> {
 
   BannerAd? _bannerAd;
 
+  final adManager = RewardedAdManager();
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +51,7 @@ class _StatsScreenState extends State<StatsScreen> {
         request: AdRequest(),
         listener: BannerAdListener(),
       )..load();
+      adManager.loadAd();
     }
   }
 
@@ -629,7 +634,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
       );
     } else {
       // 課金を促すダイアログを表示
-      _showSubscribedDialog(monthly);
+      _showSubscribedDialog();
     }
   }
 
@@ -732,32 +737,6 @@ ${AppLocalizations.of(context)!.promptEncouragement}
     }
   }
 
-  Future<void> _showSubscribedDialog(Monthly monthly) async {
-    // ダイアログで課金を促す
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.upgrade_to_premium,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text(AppLocalizations.of(context)!.free_limit_reached,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        actions: [
-          TextButton(
-            child: Text(AppLocalizations.of(context)!.cancel_button),
-            onPressed: () => Navigator.pop(context),
-          ),
-          TextButton(
-            child: Text(AppLocalizations.of(context)!.purchase),
-            onPressed: () {
-              Navigator.pop(context);
-              monthly.initIAP(); // 課金処理を開始
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   // カテゴリ名をローカライズするメソッド
   String? _getCategory(String category) {
     switch (category) {
@@ -778,6 +757,48 @@ ${AppLocalizations.of(context)!.promptEncouragement}
       default:
         return null;
     }
+  }
+
+  // ユーザーに報酬を与えるメソッド
+  void giveRewardToUser() async {
+    // ユーザーに何か特典を与える（例：アプリ内ポイント、機能解放など）
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('usage_count', 0);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("報酬"),
+        content: Text("AI機能が5回使えるようになりました！"),
+      ),
+    );
+  }
+
+  /// 課金を促すダイアログを表示する
+  Future<void> _showSubscribedDialog() async {
+    // ダイアログで課金を促す
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("",
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        content: Text(
+            "広告を見るとAI機能を5回使えます。/n広告を出さないためにはユーザ情報でプレミアムにアップグレードする必要があります。(月額1ドル)",
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        actions: [
+          TextButton(
+            child: Text(AppLocalizations.of(context)!.cancel_button),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: Text("広告を見る"),
+            onPressed: () {
+              Navigator.pop(context);
+              adManager.showAd(giveRewardToUser); // リワード処理を開始
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1021,7 +1042,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                         ),
                       );
                     } else {
-                      _showSubscribedDialog(monthly);
+                      _showSubscribedDialog();
                     }
                   } catch (e) {
                     showDialog(
@@ -1084,7 +1105,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                         ),
                       );
                     } else {
-                      _showSubscribedDialog(monthly);
+                      _showSubscribedDialog();
                     }
                   } catch (e) {
                     showDialog(
