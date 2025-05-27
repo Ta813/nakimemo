@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nakimemo/setting/locale_provider.dart';
+import 'package:provider/provider.dart';
+import '../main.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -12,6 +17,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   String? _errorMessage;
   bool _isLoading = false;
+  late Locale _locale;
 
   Future<void> _submit() async {
     setState(() {
@@ -36,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.message;
+        _errorMessage = getAuthErrorMessage(e);
       });
     } finally {
       setState(() {
@@ -121,18 +127,31 @@ class _AuthScreenState extends State<AuthScreen> {
                           });
 
                           try {
+                            //アカウント作成
                             await FirebaseAuth.instance
                                 .createUserWithEmailAndPassword(
                               email: emailController.text.trim(),
                               password: passwordController.text.trim(),
                             );
+                            //メールアドレスに確認メールを送信
                             await FirebaseAuth.instance.currentUser
                                 ?.sendEmailVerification();
+
+                            //すぐにホーム画面に行かないように一旦ログアウト
+                            await FirebaseAuth.instance.signOut();
+
+                            // 画面をメール確認待ち画面に遷移
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const EmailVerificationScreen()),
+                            );
 
                             if (context.mounted) Navigator.of(context).pop();
                           } on FirebaseAuthException catch (e) {
                             setState(() {
-                              errorMessage = e.message;
+                              errorMessage = getAuthErrorMessage(e);
                             });
                           } finally {
                             setState(() {
@@ -214,7 +233,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             }
                           } on FirebaseAuthException catch (e) {
                             setState(() {
-                              errorMessage = e.message;
+                              errorMessage = getAuthErrorMessage(e);
                             });
                           } finally {
                             setState(() {
@@ -238,8 +257,49 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  String getAuthErrorMessage(FirebaseAuthException e) {
+    final code = e.code;
+
+    const errorMessages = {
+      'email-already-in-use': {
+        'ja': 'このメールアドレスはすでに使用されています。',
+        'en': 'The email address is already in use.',
+        'zh': '此电子邮件地址已被使用。',
+      },
+      'invalid-email': {
+        'ja': '無効なメールアドレスです。',
+        'en': 'Invalid email address.',
+        'zh': '无效的电子邮件地址。',
+      },
+      'user-not-found': {
+        'ja': 'ユーザーが見つかりません。',
+        'en': 'User not found.',
+        'zh': '找不到用户。',
+      },
+      'wrong-password': {
+        'ja': 'パスワードが間違っています。',
+        'en': 'Wrong password.',
+        'zh': '密码错误。',
+      },
+      // 他のエラーコードも必要に応じて追加
+    };
+
+    final lang = _locale.languageCode;
+    return errorMessages[code]?[lang] ??
+        {
+          'ja': '不明なエラーが発生しました。',
+          'en': 'An unknown error occurred.',
+          'zh': '发生未知错误。',
+        }[lang]!;
+  }
+
   @override
   Widget build(BuildContext context) {
+    //firebaseの言語設定を行う。
+    final provider = Provider.of<LocaleProvider>(context);
+    _locale = provider.locale!;
+    FirebaseAuth.instance.setLanguageCode(_locale.languageCode);
+
     return Scaffold(
       appBar: AppBar(title: const Text('ログイン')),
       body: SafeArea(
@@ -313,6 +373,54 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class EmailVerificationScreen extends StatefulWidget {
+  const EmailVerificationScreen({super.key});
+
+  @override
+  State<EmailVerificationScreen> createState() =>
+      _EmailVerificationScreenState();
+}
+
+class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 定期的に確認
+    _timer =
+        Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
+  }
+
+  //メール確認したかチェック
+  Future<void> checkEmailVerified() async {
+    final user = FirebaseAuth.instance.currentUser;
+    await user?.reload();
+    if (user != null && user.emailVerified) {
+      _timer?.cancel();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => AuthGate()));
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("メール認証を確認してください")),
+      body: const Center(
+        child: Text("メールの確認リンクをクリックしたら自動的に次の画面へ行きます。"),
       ),
     );
   }
