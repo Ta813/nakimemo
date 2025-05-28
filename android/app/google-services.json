@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "614818042746-r4mn9516umpmund8peqdhsgtas3nvjtq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kotoapp.nakimemo",
+            "certificate_hash": "4c2e85636dcc236baa4d327af75e2733115a8d44"
+          }
+        },
+        {
           "client_id": "614818042746-uks57trjpd5l090ls4tv99pkoga4lkl6.apps.googleusercontent.com",
           "client_type": 3
         }

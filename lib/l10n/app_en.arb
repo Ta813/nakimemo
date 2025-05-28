@@ -133,5 +133,11 @@
   "theme_lavenderLight": "💜 Lavender (Light)",
   "theme_lavenderDark": "💜 Lavender (Dark)",
   "theme_white": "⬜ White (Simple)",
-  "theme_black": "⬛ Black (Dark)"
+  "theme_black": "⬛ Black (Dark)",
+  "auth_wrong_password": "Incorrect password",
+  "auth_user_not_found": "User not found",
+  "auth_email_already_exists": "This email address is already in use",
+  "auth_invalid_password": "Password must be at least 6 characters",
+  "auth_invalid_credential": "Authentication failed",
+  "auth_invalid_email": "The email address format is incorrect"
 }

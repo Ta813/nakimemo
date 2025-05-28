@@ -133,5 +133,11 @@
   "theme_lavenderLight": "💜 ラベンダー（ライト）",
   "theme_lavenderDark": "💜 ラベンダー（ダーク）",
   "theme_white": "⬜ ホワイト（シンプル）",
-  "theme_black": "⬛ ブラック（ダーク）"
+  "theme_black": "⬛ ブラック（ダーク）",
+  "auth_wrong_password": "パスワードが間違っています",
+  "auth_user_not_found": "ユーザーが見つかりません",
+  "auth_email_already_exists": "このメールアドレスはすでに使用されています",
+  "auth_invalid_password": "パスワードは6文字以上で入力してください",
+  "auth_invalid_credential": "認証に失敗しました",
+  "auth_invalid_email": "メールアドレスの形式が正しくありません"
 }

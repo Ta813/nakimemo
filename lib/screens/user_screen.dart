@@ -56,26 +56,30 @@ class _UserScreenState extends State<UserScreen> {
           children: [
             Text('メールアドレス: ${user?.email ?? "ゲスト（ログインなし）"}'),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => _showSubscribedDialog(monthly),
-              child: Text('プレミアムにアップグレード'),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => _showSubscribedDialog(monthly),
+                child: Text('プレミアムにアップグレード'),
+              ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                //サインアウト処理
-                await FirebaseAuth.instance.signOut();
-                await GoogleSignIn().signOut();
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  //サインアウト処理
+                  await FirebaseAuth.instance.signOut();
+                  await GoogleSignIn().signOut();
 
-                await
-                    // ログイン画面に遷移
-                    Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => AuthGate()),
-                );
-              },
-              child: Text('ログアウト'),
-            )
+                  await
+                      // ログイン画面に遷移
+                      Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => AuthGate()),
+                  );
+                },
+                child: Text('ログアウト'),
+              ),
+            ),
           ],
         ),
       ),

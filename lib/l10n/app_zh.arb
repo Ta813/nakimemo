@@ -134,5 +134,11 @@
   "theme_lavenderLight": "💜 薰衣草（浅色）",
   "theme_lavenderDark": "💜 薰衣草（深色）",
   "theme_white": "⬜ 白色（简约）",
-  "theme_black": "⬛ 黑色（深色）"
+  "theme_black": "⬛ 黑色（深色）",
+  "auth_wrong_password": "密码错误",
+  "auth_user_not_found": "找不到用户",
+  "auth_email_already_exists": "该电子邮件地址已被使用",
+  "auth_invalid_password": "密码必须至少包含6个字符",
+  "auth_invalid_credential": "认证失败",
+  "auth_invalid_email": "电子邮件地址格式不正确"
 }
