@@ -40,9 +40,8 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   void initState() {
     super.initState();
-    _updateCategoryCounts();
-
     if (!kIsWeb) {
+      adManager.loadAd();
       // バナー広告の初期化
       _bannerAd = BannerAd(
         adUnitId:
@@ -51,8 +50,8 @@ class _StatsScreenState extends State<StatsScreen> {
         request: AdRequest(),
         listener: BannerAdListener(),
       )..load();
-      adManager.loadAd();
     }
+    _updateCategoryCounts();
   }
 
   /// カテゴリ別の件数を更新する
@@ -605,6 +604,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
             title: Text(AppLocalizations.of(context)!.ai_consultation_title,
                 style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             content: TextField(
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
               onChanged: (value) {
                 userInput = value;
               },
@@ -767,8 +767,10 @@ ${AppLocalizations.of(context)!.promptEncouragement}
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("報酬"),
-        content: Text("AI機能が5回使えるようになりました！"),
+        title: Text(AppLocalizations.of(context)!.reward,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        content: Text(AppLocalizations.of(context)!.aiUsesAdded,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
       ),
     );
   }
@@ -781,8 +783,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
       builder: (_) => AlertDialog(
         title: Text("",
             style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text(
-            "広告を見るとAI機能を5回使えます。/n広告を出さないためにはユーザ情報でプレミアムにアップグレードする必要があります。(月額1ドル)",
+        content: Text(AppLocalizations.of(context)!.watchAdToUseAI,
             style: TextStyle(color: isDark ? Colors.white : Colors.black)),
         actions: [
           TextButton(
@@ -790,10 +791,10 @@ ${AppLocalizations.of(context)!.promptEncouragement}
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text("広告を見る"),
+            child: Text(AppLocalizations.of(context)!.watchAd),
             onPressed: () {
               Navigator.pop(context);
-              adManager.showAd(giveRewardToUser); // リワード処理を開始
+              adManager.showAd(context, giveRewardToUser); // リワード処理を開始
             },
           ),
         ],
@@ -1031,8 +1032,12 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(
-                              AppLocalizations.of(context)!.ai_advice_title),
-                          content: Text(advice),
+                              AppLocalizations.of(context)!.ai_advice_title,
+                              style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black)),
+                          content: Text(advice,
+                              style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black)),
                           actions: [
                             TextButton(
                               child: Text(AppLocalizations.of(context)!.close),
@@ -1048,10 +1053,14 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text(AppLocalizations.of(context)!.error_title),
+                        title: Text(AppLocalizations.of(context)!.error_title,
+                            style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black)),
                         content: Text(
                             AppLocalizations.of(context)!.advice_fetch_failed +
-                                '\n\n$e'),
+                                '\n\n$e',
+                            style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black)),
                         actions: [
                           TextButton(
                             child: Text(AppLocalizations.of(context)!.close),

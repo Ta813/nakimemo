@@ -54,7 +54,8 @@ class _UserScreenState extends State<UserScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('メールアドレス: ${user?.email ?? "ゲスト（ログインなし）"}'),
+            Text('メールアドレス: ${user?.email ?? "ゲスト（ログインなし）"}',
+                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             SizedBox(height: 10),
             Center(
               child: ElevatedButton(

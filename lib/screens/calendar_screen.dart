@@ -391,7 +391,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           children: [
                             Icon(cat['icon'], color: cat['color']),
                             SizedBox(width: 8),
-                            Text(_getCategory(cat['label']) ?? cat['label']),
+                            Text(_getCategory(cat['label']) ?? cat['label'],
+                                style: TextStyle(
+                                    color:
+                                        isDark ? Colors.white : Colors.black)),
                           ],
                         ),
                       );
@@ -545,6 +548,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onChanged: (value) {
               memo = value;
             },
+            style: TextStyle(color: isDark ? Colors.white : Colors.black),
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.enter_memo,
               border: OutlineInputBorder(),

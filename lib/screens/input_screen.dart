@@ -424,6 +424,7 @@ class _InputScreenState extends State<InputScreen> {
           content: TextField(
             controller:
                 TextEditingController(text: existingMemo), // 既存のメモを初期値に設定
+            style: TextStyle(color: isDark ? Colors.white : Colors.black),
             onChanged: (value) {
               memo = value;
             },

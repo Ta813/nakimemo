@@ -23,6 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
   String? _errorMessage;
   bool _isLoading = false;
   late Locale _locale;
+  bool isDark = false; // ダークモードの状態を管理
 
   Future<void> _submit() async {
     setState(() {
@@ -40,7 +41,7 @@ class _AuthScreenState extends State<AuthScreen> {
       if (user != null && !user.emailVerified) {
         // ユーザーにはメール認証を促す
         setState(() {
-          _errorMessage = 'メールアドレスが未確認です。確認リンクをチェックしてください。';
+          _errorMessage = '${AppLocalizations.of(context)!.emailNotVerified}';
         });
         await user.sendEmailVerification(); // 必要なら再送信
         return;
@@ -81,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _errorMessage = '${e.code} - ${e.message}';
       });
     } catch (e) {
-      print('その他の例外: $e');
+      print('${AppLocalizations.of(context)!.otherException} $e');
     }
   }
 
@@ -98,7 +99,9 @@ class _AuthScreenState extends State<AuthScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('新規アカウント作成'),
+              title: Text(AppLocalizations.of(context)!.createAccount,
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)),
               content: Form(
                 key: _formKeyMake, // ← 事前に定義しておいてください
                 child: SingleChildScrollView(
@@ -107,24 +110,30 @@ class _AuthScreenState extends State<AuthScreen> {
                     children: [
                       TextFormField(
                         controller: emailController,
-                        decoration: const InputDecoration(labelText: 'メールアドレス'),
+                        decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.email),
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'メールアドレスを入力してください';
+                            return '${AppLocalizations.of(context)!.enterEmail}';
                           }
                           return null;
                         },
                       ),
                       TextFormField(
                         controller: passwordController,
-                        decoration: const InputDecoration(labelText: 'パスワード'),
+                        decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.password),
                         obscureText: true,
                         inputFormatters: [LengthLimitingTextInputFormatter(30)],
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'パスワードを入力してください';
+                            return '${AppLocalizations.of(context)!.enterPassword}';
                           } else if (value.length < 6) {
-                            return 'パスワードは6文字以上で入力してください';
+                            return '${AppLocalizations.of(context)!.passwordMinLength}';
                           }
                           return null;
                         },
@@ -142,7 +151,7 @@ class _AuthScreenState extends State<AuthScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('キャンセル'),
+                  child: Text(AppLocalizations.of(context)!.cancel_button),
                 ),
                 ElevatedButton(
                   onPressed: isLoading
@@ -194,7 +203,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('登録'),
+                      : Text(AppLocalizations.of(context)!.register),
                 ),
               ],
             );
@@ -216,7 +225,9 @@ class _AuthScreenState extends State<AuthScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('パスワードをリセット'),
+              title: Text(AppLocalizations.of(context)!.resetPassword,
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)),
               content: Form(
                 key: _formKeyForgot, // ← Stateクラス内で定義しておく必要があります
                 child: Column(
@@ -224,12 +235,15 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     TextFormField(
                       controller: emailController,
-                      decoration: const InputDecoration(
-                        labelText: '登録済みのメールアドレス',
+                      decoration: InputDecoration(
+                        labelText:
+                            AppLocalizations.of(context)!.registeredEmail,
                       ),
+                      style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'メールアドレスを入力してください';
+                          return '${AppLocalizations.of(context)!.enterEmail}';
                         }
                         return null;
                       },
@@ -246,7 +260,7 @@ class _AuthScreenState extends State<AuthScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('キャンセル'),
+                  child: Text(AppLocalizations.of(context)!.cancel_button),
                 ),
                 ElevatedButton(
                   onPressed: isLoading
@@ -268,8 +282,9 @@ class _AuthScreenState extends State<AuthScreen> {
                             if (context.mounted) {
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('再設定メールを送信しました'),
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .resetEmailSent),
                                 ),
                               );
                             }
@@ -289,7 +304,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('送信'),
+                      : Text(AppLocalizations.of(context)!.send_button),
                 ),
               ],
             );
@@ -330,13 +345,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    isDark = Theme.of(context).brightness == Brightness.dark;
     //firebaseの言語設定を行う。
     final provider = Provider.of<LocaleProvider>(context);
     _locale = provider.locale!;
     FirebaseAuth.instance.setLanguageCode(_locale.languageCode);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ログイン')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.login)),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -354,27 +370,34 @@ class _AuthScreenState extends State<AuthScreen> {
                       children: [
                         TextFormField(
                           controller: _emailController,
-                          decoration: InputDecoration(labelText: 'メールアドレス'),
+                          decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.email),
                           keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'メールアドレスを入力してください';
+                              return '${AppLocalizations.of(context)!.enterEmail}';
                             }
                             return null;
                           },
                         ),
                         TextFormField(
                           controller: _passwordController,
-                          decoration: InputDecoration(labelText: 'パスワード'),
+                          decoration: InputDecoration(
+                              labelText:
+                                  AppLocalizations.of(context)!.password),
                           obscureText: true,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(30)
                           ],
+                          style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'パスワードを入力してください';
+                              return '${AppLocalizations.of(context)!.enterPassword}';
                             } else if (value.length < 6) {
-                              return 'パスワードは6文字以上で入力してください';
+                              return '${AppLocalizations.of(context)!.passwordMinLength}';
                             }
                             return null;
                           },
@@ -398,15 +421,17 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _submit();
                               }
                             },
-                            child: Text('ログイン'),
+                            child: Text(AppLocalizations.of(context)!.login),
                           ),
                         TextButton(
                           onPressed: _showForgotPasswordDialog,
-                          child: Text('パスワードをお忘れですか？'),
+                          child: Text(
+                              AppLocalizations.of(context)!.forgotPassword),
                         ),
                         TextButton(
                           onPressed: _showSignUpDialog,
-                          child: Text('アカウントを作成する'),
+                          child: Text(
+                              AppLocalizations.of(context)!.createNewAccount),
                         ),
                       ],
                     ),
@@ -414,7 +439,8 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: signInAnonymously,
-                    child: const Text('ログインせずに始める'),
+                    child:
+                        Text(AppLocalizations.of(context)!.startWithoutLogin),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
@@ -423,7 +449,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       height: 24,
                       width: 24,
                     ),
-                    label: const Text('Googleでログイン'),
+                    label: Text(AppLocalizations.of(context)!.loginWithGoogle),
                     onPressed: signInWithGoogle,
                   ),
                 ],
@@ -476,9 +502,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("メール認証を確認してください")),
-      body: const Center(
-        child: Text("メールの確認リンクをクリックしたら自動的に次の画面へ行きます。"),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.verifyEmail)),
+      body: Center(
+        child:
+            Text(AppLocalizations.of(context)!.autoNavigateAfterVerification),
       ),
     );
   }
