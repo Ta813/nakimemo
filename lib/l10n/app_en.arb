@@ -162,5 +162,9 @@
   "startWithoutLogin": "Start without logging in",
   "loginWithGoogle": "Login with Google",
   "verifyEmail": "Please verify your email",
-  "autoNavigateAfterVerification": "After clicking the verification link, you will be redirected automatically."
+  "autoNavigateAfterVerification": "After clicking the verification link, you will be redirected automatically.",
+  "userInfo": "User Info",
+  "guestUser": "Guest (not logged in)",
+  "upgradeToPremium": "Upgrade to Premium",
+  "logout": "Log Out"
 }

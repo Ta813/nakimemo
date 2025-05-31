@@ -225,7 +225,7 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "ユーザ情報",
+            label: AppLocalizations.of(context)!.userInfo,
           ),
         ],
       ),

@@ -162,5 +162,9 @@
   "startWithoutLogin": "ログインせずに始める",
   "loginWithGoogle": "Googleでログイン",
   "verifyEmail": "メール認証を確認してください",
-  "autoNavigateAfterVerification": "メールの確認リンクをクリックしたら自動的に次の画面へ行きます。"
+  "autoNavigateAfterVerification": "メールの確認リンクをクリックしたら自動的に次の画面へ行きます。",
+  "userInfo": "ユーザ情報",
+  "guestUser": "ゲスト（ログインなし）",
+  "upgradeToPremium": "プレミアムにアップグレード",
+  "logout": "ログアウト"
 }

@@ -47,20 +47,21 @@ class _UserScreenState extends State<UserScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('ユーザ情報'),
+        title: Text(AppLocalizations.of(context)!.userInfo),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('メールアドレス: ${user?.email ?? "ゲスト（ログインなし）"}',
+            Text(
+                '${AppLocalizations.of(context)!.email}: ${user?.email ?? AppLocalizations.of(context)!.guestUser}',
                 style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             SizedBox(height: 10),
             Center(
               child: ElevatedButton(
                 onPressed: () => _showSubscribedDialog(monthly),
-                child: Text('プレミアムにアップグレード'),
+                child: Text(AppLocalizations.of(context)!.upgradeToPremium),
               ),
             ),
             SizedBox(height: 10),
@@ -78,7 +79,7 @@ class _UserScreenState extends State<UserScreen> {
                     MaterialPageRoute(builder: (context) => AuthGate()),
                   );
                 },
-                child: Text('ログアウト'),
+                child: Text(AppLocalizations.of(context)!.logout),
               ),
             ),
           ],

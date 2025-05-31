@@ -163,5 +163,9 @@
   "startWithoutLogin": "无需登录开始使用",
   "loginWithGoogle": "使用 Google 登录",
   "verifyEmail": "请确认您的电子邮件",
-  "autoNavigateAfterVerification": "点击验证链接后将自动跳转到下一个页面。"
+  "autoNavigateAfterVerification": "点击验证链接后将自动跳转到下一个页面。",
+  "userInfo": "用户信息",
+  "guestUser": "访客（未登录）",
+  "upgradeToPremium": "升级为高级版",
+  "logout": "登出"
 }
