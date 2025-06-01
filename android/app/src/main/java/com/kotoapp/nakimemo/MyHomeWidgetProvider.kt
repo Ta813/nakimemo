@@ -19,19 +19,20 @@ import androidx.core.app.NotificationCompat
 class MyHomeWidgetProvider : HomeWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        
+        if (intent.action == "com.kotoapp.nakimemo.ACTION_NOTIFY_IF_NEEDED") {
+            val lastOp = getLastOperationTime(context)
+            val now = System.currentTimeMillis()
+            val oneHour = 60 * 60 * 1000L
+
+            if (now - lastOp >= oneHour) {
+                showCryNotification(context)
+            }
+        }
+
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
             Log.d("MyHomeWidgetProvider.onReceive", "uri: " + intent.getStringExtra("uri"))
             
-            if (intent.action == "com.kotoapp.nakimemo.ACTION_NOTIFY_IF_NEEDED") {
-                val lastOp = getLastOperationTime(context)
-                val now = System.currentTimeMillis()
-                val oneHour = 60 * 60 * 1000L
-
-                if (now - lastOp >= oneHour) {
-                    showCryNotification(context)
-                }
-            }
-
             if (intent.getStringExtra("uri") == "myapp://cry") {
                 // ボタンが押されたときの処理
                 val now = java.text.SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS", java.util.Locale.getDefault()).format(java.util.Date())

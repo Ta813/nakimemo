@@ -54,10 +54,9 @@ class MainActivity : FlutterActivity() {
         )
         val intervalMillis = 60 * 60 * 1000L // 1時間
         val triggerAtMillis = System.currentTimeMillis() + intervalMillis
-        alarmManager.setRepeating(
+        alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             triggerAtMillis,
-            intervalMillis,
             pendingIntent
         )
     }
