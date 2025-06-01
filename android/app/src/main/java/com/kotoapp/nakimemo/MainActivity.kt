@@ -19,32 +19,32 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            if (!alarmManager.canScheduleExactAlarms()) {
-                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                    data = Uri.parse("package:$packageName")
-                }
-                startActivity(intent)
-                return
-            }
-        }
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        //     val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        //     if (!alarmManager.canScheduleExactAlarms()) {
+        //         val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+        //             data = Uri.parse("package:$packageName")
+        //         }
+        //         startActivity(intent)
+        //         return
+        //     }
+        // }
 
-        // 通知権限の確認はそのあとに
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    1001
-                )
-                return
-            }
-        }
+        // // 通知権限の確認はそのあとに
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        //     if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        //         != PackageManager.PERMISSION_GRANTED) {
+        //         ActivityCompat.requestPermissions(
+        //             this,
+        //             arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+        //             1001
+        //         )
+        //         return
+        //     }
+        // }
 
-        saveLastOperationTime(this)
-        setAlarm()
+        // saveLastOperationTime(this)
+        // setAlarm()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
