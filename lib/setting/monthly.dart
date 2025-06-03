@@ -3,7 +3,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 
 class Monthly {
   final InAppPurchase _iap = InAppPurchase.instance;
-  final String _monthlyId = 'monthly_subscription_id'; // Google/AppleのIDに合わせる
+  final String _monthlyId = 'nakimemo-monthly'; // Google/AppleのIDに合わせる
 
   // 無料トライアルの回数をカウントする
   // 課金しているかどうかを確認する

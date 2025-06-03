@@ -58,7 +58,7 @@ class _InputScreenState extends State<InputScreen> {
       // バナー広告の初期化
       _bannerAd = BannerAd(
         adUnitId:
-            'ca-app-pub-3940256099942544/6300978111', // ご自身のAdMobバナーIDに置き換えてください
+            'ca-app-pub-2333753292729105/6235645365', // ご自身のAdMobバナーIDに置き換えてください
         size: AdSize.banner,
         request: AdRequest(),
         listener: BannerAdListener(),

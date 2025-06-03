@@ -7,7 +7,7 @@ class RewardedAdManager {
 
   void loadAd() {
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-3940256099942544/5224354917', // テスト用ID
+      adUnitId: 'ca-app-pub-2333753292729105/1246208416', // テスト用ID
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {

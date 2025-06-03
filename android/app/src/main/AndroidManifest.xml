@@ -61,7 +61,7 @@
             android:value="true"/>
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-2333753292729105~6338527656"/>
     </application>
 
     <uses-permission android:name="com.android.vending.BILLING" />
