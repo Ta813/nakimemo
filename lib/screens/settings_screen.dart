@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../setting/locale_provider.dart'; // 自作したロケールクラス
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 import '../l10n/l10n.dart';
 import '../setting/theme_provider.dart';
 import '../setting/app_themes.dart';
