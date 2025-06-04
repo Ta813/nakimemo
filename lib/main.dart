@@ -9,7 +9,7 @@ import 'screens/stats_screen.dart'; // 統計画面
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'setting/locale_provider.dart';
 import 'setting/theme_provider.dart';
