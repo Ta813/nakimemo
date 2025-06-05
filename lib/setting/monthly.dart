@@ -5,6 +5,12 @@ class Monthly {
   final InAppPurchase _iap = InAppPurchase.instance;
   final String _monthlyId = 'nakimemo_monthly'; // Google/AppleのIDに合わせる
 
+  Future<bool> isPremium() async {
+    // 課金状態を確認するロジックを実装
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('subscribed') ?? false; // 課金状態を保存している場合
+  }
+
   // 無料トライアルの回数をカウントする
   // 課金しているかどうかを確認する
   Future<bool> canUseFeature() async {
@@ -26,31 +32,36 @@ class Monthly {
 
   // 課金の初期化
   // 定期課金の初期化
-  Future<void> initIAP() async {
+  Future<bool> initIAP() async {
     final isAvailable = await _iap.isAvailable();
-    if (!isAvailable) return;
+    if (!isAvailable) return false;
 
     final response = await _iap.queryProductDetails({_monthlyId});
     if (response.notFoundIDs.isNotEmpty) {
       // エラー処理
-      return;
+      return false;
     }
 
     final product = response.productDetails.first;
 
     final purchaseParam = PurchaseParam(productDetails: product);
     _iap.buyNonConsumable(purchaseParam: purchaseParam); // 定期課金用
+    return true;
   }
 
   // 購入の確認
   void listenToPurchaseUpdates() {
     final purchaseUpdated = _iap.purchaseStream;
     purchaseUpdated.listen((purchases) async {
+      final prefs = await SharedPreferences.getInstance();
       for (var purchase in purchases) {
-        if (purchase.productID == _monthlyId &&
-            purchase.status == PurchaseStatus.purchased) {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool('subscribed', true);
+        if (purchase.productID == _monthlyId) {
+          if (purchase.status == PurchaseStatus.purchased) {
+            prefs.setBool('subscribed', true); // 購入成功時
+          } else if (purchase.status == PurchaseStatus.canceled ||
+              purchase.status == PurchaseStatus.error) {
+            prefs.setBool('subscribed', false); // 購入キャンセル時
+          }
         }
       }
     });

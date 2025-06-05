@@ -479,4 +479,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Log Out';
+
+  @override
+  String get premiumUser => 'Premium User';
 }

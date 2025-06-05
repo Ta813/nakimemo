@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "614818042746-39n4h479n25j6dqao9qdai8ov7dn3kas.apps.googleusercontent.com",
+          "client_id": "614818042746-qbbo5fm5551fid1sndib98o8a8l35lcq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.kotoapp.nakimemo",
-            "certificate_hash": "955e9e8ef21df38edcea7aad0dd2363d7c6642d8"
+            "certificate_hash": "ff8718b176480c9afed45c00ecba8473da37a4c0"
           }
         },
         {

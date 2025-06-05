@@ -166,5 +166,6 @@
   "userInfo": "ユーザ情報",
   "guestUser": "ゲスト（ログインなし）",
   "upgradeToPremium": "プレミアムにアップグレード",
-  "logout": "ログアウト"
+  "logout": "ログアウト",
+  "premiumUser" : "プレミアムユーザ"
 }

@@ -459,4 +459,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get logout => '登出';
+
+  @override
+  String get premiumUser => '高级用户';
 }

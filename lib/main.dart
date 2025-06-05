@@ -26,6 +26,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase/firebase_common.dart';
 import 'screens/auth_screen.dart';
 import 'screens/user_screen.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 bool _isFirstLaunch = true;
 Future<void> main() async {
@@ -40,6 +41,8 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    //FirebaseCrashlyticsにエラー情報を送る設定
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
     if (!kIsWeb) {
       await dotenv.load();

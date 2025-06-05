@@ -166,5 +166,6 @@
   "userInfo": "User Info",
   "guestUser": "Guest (not logged in)",
   "upgradeToPremium": "Upgrade to Premium",
-  "logout": "Log Out"
+  "logout": "Log Out",
+  "premiumUser": "Premium User"
 }

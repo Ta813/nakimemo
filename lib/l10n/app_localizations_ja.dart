@@ -462,4 +462,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get logout => 'ログアウト';
+
+  @override
+  String get premiumUser => 'プレミアムユーザ';
 }

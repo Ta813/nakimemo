@@ -14,6 +14,21 @@ class _UserScreenState extends State<UserScreen> {
   bool isDark = false; // ダークモードの状態を管理
   Monthly monthly = Monthly();
 
+  bool _isPremium = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPremiumStatus();
+  }
+
+  Future<void> _checkPremiumStatus() async {
+    bool isPremium = await monthly.isPremium(); // 課金状態を確認するメソッド
+    setState(() {
+      _isPremium = isPremium; // 課金状態を更新
+    });
+  }
+
   Future<void> _showSubscribedDialog(Monthly monthly) async {
     // ダイアログで課金を促す
     showDialog(
@@ -30,9 +45,14 @@ class _UserScreenState extends State<UserScreen> {
           ),
           TextButton(
             child: Text(AppLocalizations.of(context)!.purchase),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              monthly.initIAP(); // 課金処理を開始
+              bool success = await monthly.initIAP(); // 課金処理を開始
+              if (success) {
+                setState(() {
+                  _isPremium = true; // プレミアム状態を更新
+                });
+              }
             },
           ),
         ],
@@ -58,12 +78,22 @@ class _UserScreenState extends State<UserScreen> {
                 '${AppLocalizations.of(context)!.email}: ${user?.email ?? AppLocalizations.of(context)!.guestUser}',
                 style: TextStyle(color: isDark ? Colors.white : Colors.black)),
             SizedBox(height: 10),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => _showSubscribedDialog(monthly),
-                child: Text(AppLocalizations.of(context)!.upgradeToPremium),
+            // プレミアムでなければアップグレードボタンを表示
+            if (!_isPremium)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => _showSubscribedDialog(monthly),
+                  child: Text(AppLocalizations.of(context)!.upgradeToPremium),
+                ),
+              )
+            else
+              Center(
+                child: Text(
+                  AppLocalizations.of(context)!.premiumUser,
+                  style: TextStyle(color: Colors.green, fontSize: 18),
+                ),
               ),
-            ),
+
             SizedBox(height: 10),
             Center(
               child: ElevatedButton(
