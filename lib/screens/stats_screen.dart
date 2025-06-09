@@ -533,7 +533,7 @@ ${AppLocalizations.of(context)!.data}: ${categoryCounts.entries.map((e) => '${e.
         'Authorization': 'Bearer $apiKey',
       },
       body: json.encode({
-        'model': 'gpt-3.5-turbo',
+        'model': 'gpt-4o-mini',
         'messages': [
           {
             'role': 'system',
@@ -570,7 +570,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
         'Authorization': 'Bearer $apiKey',
       },
       body: json.encode({
-        'model': 'gpt-3.5-turbo',
+        'model': 'gpt-4o-mini',
         'messages': [
           {
             'role': 'system',
@@ -712,7 +712,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
         'Authorization': 'Bearer $apiKey',
       },
       body: json.encode({
-        'model': 'gpt-3.5-turbo',
+        'model': 'gpt-4o-mini',
         'messages': [
           {
             'role': 'system',
