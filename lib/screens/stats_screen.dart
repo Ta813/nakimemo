@@ -57,21 +57,28 @@ class _StatsScreenState extends State<StatsScreen> {
   /// カテゴリ別の件数を更新する
   void _updateCategoryCounts() async {
     if (_selectedUnit == DisplayUnit.month) {
-      final counts =
-          await getMonthlyCategoryCounts(DateTime(selectedYear, selectedMonth));
+      final counts = await getMonthlyCategoryCounts(
+        DateTime(selectedYear, selectedMonth),
+      );
       setState(() {
         categoryCounts = counts;
       });
     } else if (_selectedUnit == DisplayUnit.week) {
       final counts = await getWeeklyCategoryCounts(
-          selectedYear, selectedMonth, selectedWeek);
+        selectedYear,
+        selectedMonth,
+        selectedWeek,
+      );
 
       setState(() {
         categoryCounts = counts;
       });
     } else if (_selectedUnit == DisplayUnit.day) {
       final counts = await getDailyCategoryCounts(
-          selectedYear, selectedMonth, selectedDay);
+        selectedYear,
+        selectedMonth,
+        selectedDay,
+      );
       setState(() {
         categoryCounts = counts;
       });
@@ -135,7 +142,10 @@ class _StatsScreenState extends State<StatsScreen> {
   /// [month] : 月
   /// [week] : 週
   Future<Map<String, int>> getWeeklyCategoryCounts(
-      int year, int month, int week) async {
+    int year,
+    int month,
+    int week,
+  ) async {
     final allLogs = await _loadAllLogs();
     final counts = <String, int>{};
     final logs = Map<String, List<String>>();
@@ -185,7 +195,10 @@ class _StatsScreenState extends State<StatsScreen> {
 
   /// 週ごとのカテゴリ別の件数を取得する
   Future<Map<String, int>> getDailyCategoryCounts(
-      int year, int month, int day) async {
+    int year,
+    int month,
+    int day,
+  ) async {
     final allLogs = await _loadAllLogs();
     final counts = <String, int>{};
     final logs = Map<String, List<String>>();
@@ -288,7 +301,7 @@ class _StatsScreenState extends State<StatsScreen> {
       '8-12H': 0,
       '12-16H': 0,
       '16-20H': 0,
-      '20-24H': 0
+      '20-24H': 0,
     };
 
     for (final entry in selectedLogs.entries) {
@@ -328,8 +341,10 @@ class _StatsScreenState extends State<StatsScreen> {
             });
           },
         ),
-        Text(label,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        Text(
+          label,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
       ],
     );
   }
@@ -350,107 +365,6 @@ class _StatsScreenState extends State<StatsScreen> {
 
   /// カテゴリごとの件数を取得する
   Widget _buildMonthSelector() {
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      DropdownButton<int>(
-        value: selectedYear,
-        items: List.generate(5, (index) {
-          final year = DateTime.now().year - 2 + index;
-          return DropdownMenuItem(
-              value: year,
-              child: Text(AppLocalizations.of(context)!.year_label(year),
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)));
-        }),
-        onChanged: (value) {
-          setState(() {
-            selectedYear = value!;
-            _updateCategoryCounts();
-          });
-        },
-      ),
-      SizedBox(width: 10),
-      DropdownButton<int>(
-        value: selectedMonth,
-        items: List.generate(
-            12,
-            (index) => DropdownMenuItem(
-                  value: index + 1,
-                  child: Text(
-                      AppLocalizations.of(context)!.month_label(index + 1),
-                      style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black)),
-                )),
-        onChanged: (value) {
-          setState(() {
-            selectedMonth = value!;
-            _updateCategoryCounts();
-          });
-        },
-      ),
-    ]);
-  }
-
-  /// カテゴリごとの件数を取得する
-  Widget _buildWeekSelector() {
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      DropdownButton<int>(
-        value: selectedYear,
-        items: List.generate(5, (index) {
-          final year = DateTime.now().year - 2 + index;
-          return DropdownMenuItem(
-              value: year,
-              child: Text(AppLocalizations.of(context)!.year_label(year),
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)));
-        }),
-        onChanged: (value) {
-          setState(() {
-            selectedYear = value!;
-            _updateCategoryCounts();
-          });
-        },
-      ),
-      SizedBox(width: 10),
-      DropdownButton<int>(
-        value: selectedMonth,
-        items: List.generate(
-            12,
-            (index) => DropdownMenuItem(
-                  value: index + 1,
-                  child: Text(
-                      AppLocalizations.of(context)!.month_label(index + 1),
-                      style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black)),
-                )),
-        onChanged: (value) {
-          setState(() {
-            selectedMonth = value!;
-            _updateCategoryCounts();
-          });
-        },
-      ),
-      SizedBox(width: 10),
-      DropdownButton<int>(
-        value: selectedWeek,
-        items: List.generate(6, (i) => i + 1).map((week) {
-          return DropdownMenuItem(
-            value: week,
-            child: Text(AppLocalizations.of(context)!.week_label(week),
-                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-          );
-        }).toList(),
-        onChanged: (value) {
-          setState(() {
-            selectedWeek = value!;
-            _updateCategoryCounts();
-          });
-        },
-      )
-    ]);
-  }
-
-  /// カテゴリごとの件数を取得する
-  Widget _buildDaySelector() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -459,10 +373,12 @@ class _StatsScreenState extends State<StatsScreen> {
           items: List.generate(5, (index) {
             final year = DateTime.now().year - 2 + index;
             return DropdownMenuItem(
-                value: year,
-                child: Text(AppLocalizations.of(context)!.year_label(year),
-                    style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black)));
+              value: year,
+              child: Text(
+                AppLocalizations.of(context)!.year_label(year),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            );
           }),
           onChanged: (value) {
             setState(() {
@@ -475,14 +391,130 @@ class _StatsScreenState extends State<StatsScreen> {
         DropdownButton<int>(
           value: selectedMonth,
           items: List.generate(
-              12,
-              (index) => DropdownMenuItem(
-                    value: index + 1,
-                    child: Text(
-                        AppLocalizations.of(context)!.month_label(index + 1),
-                        style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black)),
-                  )),
+            12,
+            (index) => DropdownMenuItem(
+              value: index + 1,
+              child: Text(
+                AppLocalizations.of(context)!.month_label(index + 1),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            ),
+          ),
+          onChanged: (value) {
+            setState(() {
+              selectedMonth = value!;
+              _updateCategoryCounts();
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  /// カテゴリごとの件数を取得する
+  Widget _buildWeekSelector() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DropdownButton<int>(
+          value: selectedYear,
+          items: List.generate(5, (index) {
+            final year = DateTime.now().year - 2 + index;
+            return DropdownMenuItem(
+              value: year,
+              child: Text(
+                AppLocalizations.of(context)!.year_label(year),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            );
+          }),
+          onChanged: (value) {
+            setState(() {
+              selectedYear = value!;
+              _updateCategoryCounts();
+            });
+          },
+        ),
+        SizedBox(width: 10),
+        DropdownButton<int>(
+          value: selectedMonth,
+          items: List.generate(
+            12,
+            (index) => DropdownMenuItem(
+              value: index + 1,
+              child: Text(
+                AppLocalizations.of(context)!.month_label(index + 1),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            ),
+          ),
+          onChanged: (value) {
+            setState(() {
+              selectedMonth = value!;
+              _updateCategoryCounts();
+            });
+          },
+        ),
+        SizedBox(width: 10),
+        DropdownButton<int>(
+          value: selectedWeek,
+          items: List.generate(6, (i) => i + 1).map((week) {
+            return DropdownMenuItem(
+              value: week,
+              child: Text(
+                AppLocalizations.of(context)!.week_label(week),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedWeek = value!;
+              _updateCategoryCounts();
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  /// カテゴリごとの件数を取得する
+  Widget _buildDaySelector() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DropdownButton<int>(
+          value: selectedYear,
+          items: List.generate(5, (index) {
+            final year = DateTime.now().year - 2 + index;
+            return DropdownMenuItem(
+              value: year,
+              child: Text(
+                AppLocalizations.of(context)!.year_label(year),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            );
+          }),
+          onChanged: (value) {
+            setState(() {
+              selectedYear = value!;
+              _updateCategoryCounts();
+            });
+          },
+        ),
+        SizedBox(width: 10),
+        DropdownButton<int>(
+          value: selectedMonth,
+          items: List.generate(
+            12,
+            (index) => DropdownMenuItem(
+              value: index + 1,
+              child: Text(
+                AppLocalizations.of(context)!.month_label(index + 1),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            ),
+          ),
           onChanged: (value) {
             setState(() {
               selectedMonth = value!;
@@ -494,14 +526,15 @@ class _StatsScreenState extends State<StatsScreen> {
         DropdownButton<int>(
           value: selectedDay,
           items: List.generate(
-              DateUtils.getDaysInMonth(selectedYear, selectedMonth),
-              (index) => DropdownMenuItem(
-                    value: index + 1,
-                    child: Text(
-                        AppLocalizations.of(context)!.day_label(index + 1),
-                        style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black)),
-                  )),
+            DateUtils.getDaysInMonth(selectedYear, selectedMonth),
+            (index) => DropdownMenuItem(
+              value: index + 1,
+              child: Text(
+                AppLocalizations.of(context)!.day_label(index + 1),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
+            ),
+          ),
           onChanged: (value) {
             setState(() {
               selectedDay = value!;
@@ -516,11 +549,13 @@ class _StatsScreenState extends State<StatsScreen> {
   /// OpenAI APIを使用して育児アドバイスを取得する
   /// [categoryCounts] : カテゴリごとの件数
   Future<String> fetchParentingAdviceFromOpenAI(
-      Map<String, int> categoryCounts) async {
+    Map<String, int> categoryCounts,
+  ) async {
     final apiKey = dotenv.env['OPENAI_API_KEY'];
     final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
 
-    final prompt = '''
+    final prompt =
+        '''
 
 ${AppLocalizations.of(context)!.promptAdviceFromData}
 ${AppLocalizations.of(context)!.data}: ${categoryCounts.entries.map((e) => '${e.key}: ${e.value}${AppLocalizations.of(context)!.times}').join(', ')}。
@@ -537,9 +572,9 @@ ${AppLocalizations.of(context)!.data}: ${categoryCounts.entries.map((e) => '${e.
         'messages': [
           {
             'role': 'system',
-            'content': AppLocalizations.of(context)!.roleNurseryTeacher
+            'content': AppLocalizations.of(context)!.roleNurseryTeacher,
           },
-          {'role': 'user', 'content': prompt}
+          {'role': 'user', 'content': prompt},
         ],
         'max_tokens': 200,
         'temperature': 0.7,
@@ -559,7 +594,8 @@ ${AppLocalizations.of(context)!.data}: ${categoryCounts.entries.map((e) => '${e.
     final apiKey = dotenv.env['OPENAI_API_KEY'];
     final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
 
-    final prompt = '''
+    final prompt =
+        '''
 ${AppLocalizations.of(context)!.promptEncouragement}
 ''';
 
@@ -574,9 +610,9 @@ ${AppLocalizations.of(context)!.promptEncouragement}
         'messages': [
           {
             'role': 'system',
-            'content': AppLocalizations.of(context)!.roleEncouragingAI
+            'content': AppLocalizations.of(context)!.roleEncouragingAI,
           },
-          {'role': 'user', 'content': prompt}
+          {'role': 'user', 'content': prompt},
         ],
         'max_tokens': 100,
         'temperature': 0.7,
@@ -601,8 +637,10 @@ ${AppLocalizations.of(context)!.promptEncouragement}
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(AppLocalizations.of(context)!.ai_consultation_title,
-                style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+            title: Text(
+              AppLocalizations.of(context)!.ai_consultation_title,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
             content: TextField(
               style: TextStyle(color: isDark ? Colors.white : Colors.black),
               onChanged: (value) {
@@ -645,9 +683,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => Center(
-          child: CircularProgressIndicator(),
-        ),
+        builder: (context) => Center(child: CircularProgressIndicator()),
       );
 
       // AIからの回答を取得
@@ -660,13 +696,15 @@ ${AppLocalizations.of(context)!.promptEncouragement}
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text(AppLocalizations.of(context)!.ai_response_title,
-              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+          title: Text(
+            AppLocalizations.of(context)!.ai_response_title,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black),
+          ),
           content: SingleChildScrollView(
-            child: Text(response,
-                style: TextStyle(
-                    color:
-                        isDark ? Colors.white : Colors.black)), // 結果をスクロール可能にする
+            child: Text(
+              response,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ), // 結果をスクロール可能にする
           ),
           actions: [
             TextButton(
@@ -684,11 +722,14 @@ ${AppLocalizations.of(context)!.promptEncouragement}
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text(AppLocalizations.of(context)!.error,
-              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+          title: Text(
+            AppLocalizations.of(context)!.error,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black),
+          ),
           content: Text(
-              "${AppLocalizations.of(context)!.ai_response_failed}\n\n$e",
-              style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+            "${AppLocalizations.of(context)!.ai_response_failed}\n\n$e",
+            style: TextStyle(color: isDark ? Colors.white : Colors.black),
+          ),
           actions: [
             TextButton(
               child: Text(AppLocalizations.of(context)!.close),
@@ -716,12 +757,12 @@ ${AppLocalizations.of(context)!.promptEncouragement}
         'messages': [
           {
             'role': 'system',
-            'content': AppLocalizations.of(context)!.roleHelpfulAssistant
+            'content': AppLocalizations.of(context)!.roleHelpfulAssistant,
           },
           {
             'role': 'user',
             'content':
-                '$question ${AppLocalizations.of(context)!.limitCharacters150}'
+                '$question ${AppLocalizations.of(context)!.limitCharacters150}',
           },
         ],
         'max_tokens': 200,
@@ -767,10 +808,14 @@ ${AppLocalizations.of(context)!.promptEncouragement}
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.reward,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text(AppLocalizations.of(context)!.aiUsesAdded,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        title: Text(
+          AppLocalizations.of(context)!.reward,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
+        content: Text(
+          AppLocalizations.of(context)!.aiUsesAdded,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
       ),
     );
   }
@@ -781,10 +826,14 @@ ${AppLocalizations.of(context)!.promptEncouragement}
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("",
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-        content: Text(AppLocalizations.of(context)!.watchAdToUseAI,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        title: Text(
+          "",
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
+        content: Text(
+          AppLocalizations.of(context)!.watchAdToUseAI,
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
         actions: [
           TextButton(
             child: Text(AppLocalizations.of(context)!.cancel_button),
@@ -821,13 +870,18 @@ ${AppLocalizations.of(context)!.promptEncouragement}
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.stats_help_title,
-                      style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black)),
+                  title: Text(
+                    AppLocalizations.of(context)!.stats_help_title,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                   content: Text(
-                      AppLocalizations.of(context)!.stats_help_content,
-                      style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black)),
+                    AppLocalizations.of(context)!.stats_help_content,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                   actions: [
                     TextButton(
                       child: Text(AppLocalizations.of(context)!.close),
@@ -837,7 +891,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                 ),
               );
             },
-          )
+          ),
         ],
       ),
       body: Padding(
@@ -849,13 +903,21 @@ ${AppLocalizations.of(context)!.promptEncouragement}
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildUnitRadio(
-                    DisplayUnit.day, AppLocalizations.of(context)!.day),
+                  DisplayUnit.day,
+                  AppLocalizations.of(context)!.day,
+                ),
                 _buildUnitRadio(
-                    DisplayUnit.week, AppLocalizations.of(context)!.week),
+                  DisplayUnit.week,
+                  AppLocalizations.of(context)!.week,
+                ),
                 _buildUnitRadio(
-                    DisplayUnit.month, AppLocalizations.of(context)!.month),
+                  DisplayUnit.month,
+                  AppLocalizations.of(context)!.month,
+                ),
                 _buildUnitRadio(
-                    DisplayUnit.all, AppLocalizations.of(context)!.overall),
+                  DisplayUnit.all,
+                  AppLocalizations.of(context)!.overall,
+                ),
               ],
             ),
             SizedBox(height: 10),
@@ -864,9 +926,13 @@ ${AppLocalizations.of(context)!.promptEncouragement}
             Expanded(
               child: categoryCounts.isEmpty
                   ? Center(
-                      child: Text(AppLocalizations.of(context)!.noRecords,
-                          style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black)))
+                      child: Text(
+                        AppLocalizations.of(context)!.noRecords,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    )
                   : SingleChildScrollView(
                       child: Column(
                         children: [
@@ -882,29 +948,35 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                     color: _getCategoryColor(entry.key),
                                     radius: 60,
                                     titleStyle: TextStyle(
-                                        fontSize: 14, color: Colors.white),
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
                                   );
                                 }).toList(),
                               ),
                             ),
                           ),
                           SizedBox(height: 20),
-                          ...categoryCounts.entries.map((e) => ListTile(
-                                leading: Icon(_getCategoryIcon(e.key),
-                                    color: _getCategoryColor(e.key)),
-                                title: Text(_getCategory(e.key) ?? e.key),
-                                trailing: Text(
-                                    '${e.value} ${AppLocalizations.of(context)!.itemCount}'),
-                              )),
+                          ...categoryCounts.entries.map(
+                            (e) => ListTile(
+                              leading: Icon(
+                                _getCategoryIcon(e.key),
+                                color: _getCategoryColor(e.key),
+                              ),
+                              title: Text(_getCategory(e.key) ?? e.key),
+                              trailing: Text(
+                                '${e.value} ${AppLocalizations.of(context)!.itemCount}',
+                              ),
+                            ),
+                          ),
                           SizedBox(height: 20),
-                          Text(AppLocalizations.of(context)!.cryingTrendByTime,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.black)),
+                          Text(
+                            AppLocalizations.of(context)!.cryingTrendByTime,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                          ),
                           FutureBuilder<Map<String, int>>(
                             future: getHourlyStats(),
                             builder: (context, snapshot) {
@@ -916,7 +988,7 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                 '8-12H',
                                 '12-16H',
                                 '16-20H',
-                                '20-24H'
+                                '20-24H',
                               ];
 
                               return SizedBox(
@@ -924,8 +996,9 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                 width: double.infinity,
                                 child: BarChart(
                                   BarChartData(
-                                    barGroups:
-                                        timeRanges.asMap().entries.map((entry) {
+                                    barGroups: timeRanges.asMap().entries.map((
+                                      entry,
+                                    ) {
                                       final timeIndex = entry.key;
                                       final timeLabel = entry.value;
                                       final count = data[timeLabel] ?? 0;
@@ -937,8 +1010,9 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                             toY: count.toDouble(),
                                             width: 20,
                                             color: Colors.blueAccent,
-                                            borderRadius:
-                                                BorderRadius.circular(0),
+                                            borderRadius: BorderRadius.circular(
+                                              0,
+                                            ),
                                           ),
                                         ],
                                         barsSpace: 4,
@@ -946,15 +1020,16 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                     }).toList(),
                                     titlesData: FlTitlesData(
                                       leftTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                        showTitles: true,
-                                        getTitlesWidget: (value, meta) {
-                                          return Text(
-                                            value.toInt().toString(),
-                                            style: TextStyle(fontSize: 10),
-                                          );
-                                        },
-                                      )),
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: (value, meta) {
+                                            return Text(
+                                              value.toInt().toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            );
+                                          },
+                                        ),
+                                      ),
                                       bottomTitles: AxisTitles(
                                         sideTitles: SideTitles(
                                           showTitles: true,
@@ -963,12 +1038,14 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                                 value.toInt() <
                                                     timeRanges.length) {
                                               return Text(
-                                                  timeRanges[value.toInt()],
-                                                  style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: isDark
-                                                          ? Colors.white
-                                                          : Colors.black));
+                                                timeRanges[value.toInt()],
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: isDark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                ),
+                                              );
                                             }
                                             return Text('');
                                           },
@@ -976,11 +1053,13 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                                       ),
                                       topTitles: AxisTitles(
                                         sideTitles: SideTitles(
-                                            showTitles: false), // 上軸の数字非表示
+                                          showTitles: false,
+                                        ), // 上軸の数字非表示
                                       ),
                                       rightTitles: AxisTitles(
                                         sideTitles: SideTitles(
-                                            showTitles: false), // 右軸の数字非表示
+                                          showTitles: false,
+                                        ), // 右軸の数字非表示
                                       ),
                                     ),
                                     gridData: FlGridData(show: true),
@@ -997,114 +1076,85 @@ ${AppLocalizations.of(context)!.promptEncouragement}
             Text(
               AppLocalizations.of(context)!.aiFeature,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isDark ? Colors.white : Colors.black), // タイトルのスタイル
+                color: isDark ? Colors.white : Colors.black,
+              ), // タイトルのスタイル
             ),
             const SizedBox(height: 10),
-            Wrap(spacing: 5, children: [
-              ElevatedButton.icon(
-                icon: Icon(Icons.lightbulb),
-                label: Text(
-                  AppLocalizations.of(context)!.adviceButton,
-                  softWrap: true,
-                  overflow: TextOverflow.visible,
-                ),
-                onPressed: () async {
-                  try {
-                    Monthly monthly = Monthly();
-                    final canUse = await monthly.canUseFeature();
-                    if (canUse) {
-                      // ローディングインジケーターを表示
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false, // ダイアログ外をタップしても閉じない
-                        builder: (context) => Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
+            Wrap(
+              spacing: 5,
+              children: [
+                ElevatedButton.icon(
+                  icon: Icon(Icons.lightbulb),
+                  label: Text(
+                    AppLocalizations.of(context)!.adviceButton,
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                  onPressed: () async {
+                    try {
+                      Monthly monthly = Monthly();
+                      final canUse = await monthly.canUseFeature();
+                      if (canUse) {
+                        // ローディングインジケーターを表示
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false, // ダイアログ外をタップしても閉じない
+                          builder: (context) =>
+                              Center(child: CircularProgressIndicator()),
+                        );
 
-                      final advice =
-                          await fetchParentingAdviceFromOpenAI(categoryCounts);
+                        final advice = await fetchParentingAdviceFromOpenAI(
+                          categoryCounts,
+                        );
 
-                      // ローディングインジケーターを閉じる
-                      Navigator.pop(context);
+                        // ローディングインジケーターを閉じる
+                        Navigator.pop(context);
 
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                              AppLocalizations.of(context)!.ai_advice_title,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            content: Text(
+                              advice,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text(
+                                  AppLocalizations.of(context)!.close,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        _showSubscribedDialog();
+                      }
+                    } catch (e) {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(
-                              AppLocalizations.of(context)!.ai_advice_title,
-                              style: TextStyle(
-                                  color: isDark ? Colors.white : Colors.black)),
-                          content: Text(advice,
-                              style: TextStyle(
-                                  color: isDark ? Colors.white : Colors.black)),
-                          actions: [
-                            TextButton(
-                              child: Text(AppLocalizations.of(context)!.close),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      _showSubscribedDialog();
-                    }
-                  } catch (e) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(AppLocalizations.of(context)!.error_title,
+                            AppLocalizations.of(context)!.error_title,
                             style: TextStyle(
-                                color: isDark ? Colors.white : Colors.black)),
-                        content: Text(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          content: Text(
                             AppLocalizations.of(context)!.advice_fetch_failed +
                                 '\n\n$e',
                             style: TextStyle(
-                                color: isDark ? Colors.white : Colors.black)),
-                        actions: [
-                          TextButton(
-                            child: Text(AppLocalizations.of(context)!.close),
-                            onPressed: () => Navigator.pop(context),
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                           ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              ),
-              ElevatedButton.icon(
-                icon: Icon(Icons.sentiment_satisfied_alt),
-                label: Text(AppLocalizations.of(context)!.encouragement,
-                    softWrap: true, overflow: TextOverflow.visible),
-                onPressed: () async {
-                  try {
-                    Monthly monthly = Monthly();
-                    final canUse = await monthly.canUseFeature();
-                    if (canUse) {
-                      // ローディングインジケーターを表示
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false, // ダイアログ外をタップしても閉じない
-                        builder: (context) => Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-
-                      final encouragement = await fetchEncouragementFromAI();
-
-                      // ローディングインジケーターを閉じる
-                      Navigator.pop(context);
-
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(
-                              AppLocalizations.of(context)!.encouragementFromAI,
-                              style: TextStyle(
-                                  color: isDark ? Colors.white : Colors.black)),
-                          content: Text(encouragement,
-                              style: TextStyle(
-                                  color: isDark ? Colors.white : Colors.black)),
                           actions: [
                             TextButton(
                               child: Text(AppLocalizations.of(context)!.close),
@@ -1113,40 +1163,102 @@ ${AppLocalizations.of(context)!.promptEncouragement}
                           ],
                         ),
                       );
-                    } else {
-                      _showSubscribedDialog();
                     }
-                  } catch (e) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(AppLocalizations.of(context)!.error,
+                  },
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.sentiment_satisfied_alt),
+                  label: Text(
+                    AppLocalizations.of(context)!.encouragement,
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                  onPressed: () async {
+                    try {
+                      Monthly monthly = Monthly();
+                      final canUse = await monthly.canUseFeature();
+                      if (canUse) {
+                        // ローディングインジケーターを表示
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false, // ダイアログ外をタップしても閉じない
+                          builder: (context) =>
+                              Center(child: CircularProgressIndicator()),
+                        );
+
+                        final encouragement = await fetchEncouragementFromAI();
+
+                        // ローディングインジケーターを閉じる
+                        Navigator.pop(context);
+
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                              AppLocalizations.of(context)!.encouragementFromAI,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            content: Text(
+                              encouragement,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text(
+                                  AppLocalizations.of(context)!.close,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        _showSubscribedDialog();
+                      }
+                    } catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(
+                            AppLocalizations.of(context)!.error,
                             style: TextStyle(
-                                color: isDark ? Colors.white : Colors.black)),
-                        content: Text(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          content: Text(
                             "${AppLocalizations.of(context)!.encouragement_fetch_error}\n\n$e",
                             style: TextStyle(
-                                color: isDark ? Colors.white : Colors.black)),
-                        actions: [
-                          TextButton(
-                            child: Text(AppLocalizations.of(context)!.close),
-                            onPressed: () => Navigator.pop(context),
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                           ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              ),
-              ElevatedButton.icon(
-                icon: Icon(Icons.chat),
-                label: Text(AppLocalizations.of(context)!.consultation,
-                    softWrap: true, overflow: TextOverflow.visible),
-                onPressed: () async {
-                  await _showConsultationDialog();
-                },
-              ),
-            ]),
+                          actions: [
+                            TextButton(
+                              child: Text(AppLocalizations.of(context)!.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.chat),
+                  label: Text(
+                    AppLocalizations.of(context)!.consultation,
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                  onPressed: () async {
+                    await _showConsultationDialog();
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
